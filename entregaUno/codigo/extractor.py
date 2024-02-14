@@ -8,6 +8,19 @@ api_key = json_obj["API_KEY_SS"]
 
 headers = {'x-api-key': api_key}
 
+def verify_status_and_return(response, data: bool=False):
+    if response.status_code == 200:
+        ret = json.dumps(response.json(), indent=2)
+        ret = json.loads(ret)
+        if not data:
+            return ret
+        else:
+            return ret['data']
+    else:
+        print(f"Error: {response.status_code}")
+        print(json.dumps(response.json(), indent=2))
+        return None
+
 def get_papers_from_author(author_name: tuple) -> dict:
     url = f'https://api.semanticscholar.org/graph/v1/author/search?query={author_name[0]}+{author_name[1]}'
     print(url)
@@ -20,16 +33,26 @@ def get_papers_from_author(author_name: tuple) -> dict:
         }
     )
 
-    if response.status_code == 200:
-        ret = json.dumps(response.json(), indent=2)
-        ret = json.loads(ret)
-        return ret['data']
-    else:
-        print(f"Error: {response.status_code}")
-        print(json.dumps(response.json(), indent=2))
-        return None
+    return verify_status_and_return(response, True)
 
-# get_papers_from_author(('a', 'descamps'))
+def get_paper(paper_id: str):
+    # TO-DO: tal vez volver todo esto en una misma función grande y que sea solo pasar parámetros
+    url = f'https://api.semanticscholar.org/graph/v1/paper/{paper_id}'
+    print(url)
+    response = requests.get(
+        url,
+        headers=headers,
+        params={
+            "fields": "referenceCount,citationCount,title,isOpenAccess,openAccessPdf",
+            "limit": 1
+        }
+    )
+
+    return verify_status_and_return(response)
+
+def get_pdf(paper_link: str):
+    response = requests.get(paper_link)
+    return response
 
 """
 1 - Entrar al arreglo de autores
