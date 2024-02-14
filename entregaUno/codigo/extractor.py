@@ -9,11 +9,15 @@ api_key = json_obj["API_KEY_SS"]
 headers = {'x-api-key': api_key}
 
 def verify_status_and_return(response, data: bool=False):
+    """
+    Verifies the status of the response and returns the data
+    if it's a 200 status code.
+    """
     if response.status_code == 200:
         ret = json.dumps(response.json(), indent=2)
         ret = json.loads(ret)
         if not data:
-            return ret
+            r eturn ret
         else:
             return ret['data']
     else:
@@ -22,6 +26,17 @@ def verify_status_and_return(response, data: bool=False):
         return None
 
 def get_papers_from_author(author_name: tuple) -> dict:
+    """
+    Returns the papers of the author in JSON format.
+
+    Author object (relevant fields):
+    {..., "data": [
+                    "authorId": "1741101",
+                    "name": "Oren Etzioni",
+                    "papers": [],
+                  ]
+    }
+    """
     url = f'https://api.semanticscholar.org/graph/v1/author/search?query={author_name[0]}+{author_name[1]}'
     print(url)
     response = requests.get(
@@ -36,6 +51,23 @@ def get_papers_from_author(author_name: tuple) -> dict:
     return verify_status_and_return(response, True)
 
 def get_paper(paper_id: str):
+    """
+    Returns the details of the paper in JSON format.
+    
+    Paper object (relevant fields):
+    {
+        "paperId": "649def34f8be52c8b66281af98ae884c09aef38b",
+        "corpusId": 2314124,
+        "title": "Construction of the Literature Graph in Semantic Scholar",
+        "year": 2018,
+        "referenceCount": 321,
+        "citationCount": 987,
+        "influentialCitationCount": 654,
+        "isOpenAccess": true,
+        "openAccessPdf": {},
+        "publicationDate": "2015-01-17",
+    }
+    """
     # TO-DO: tal vez volver todo esto en una misma función grande y que sea solo pasar parámetros
     url = f'https://api.semanticscholar.org/graph/v1/paper/{paper_id}'
     print(url)
@@ -43,14 +75,16 @@ def get_paper(paper_id: str):
         url,
         headers=headers,
         params={
-            "fields": "referenceCount,citationCount,title,isOpenAccess,openAccessPdf",
-            "limit": 1
+            "fields": "corpusId,title,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,publicationDate"
         }
     )
 
     return verify_status_and_return(response)
 
 def get_pdf(paper_link: str):
+    """
+    Returns the url to the paper pdf.
+    """
     response = requests.get(paper_link)
     return response
 

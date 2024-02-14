@@ -5,7 +5,7 @@ def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> t
     """
     Verifies if paper_name has an object associated with author_name.
     """
-    author_name_tuple = (author_name[0], author_name[2:])
+    author_name_tuple = (author_name[0], author_name[2:]) # author name format: "<name initial>\s<full last name>"
     authors = extr.get_papers_from_author(author_name_tuple)
     
     for each_author in authors:
