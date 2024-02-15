@@ -11,33 +11,49 @@ def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> t
     for each_author in authors:
         papers_list = each_author['papers']
         for each_paper in papers_list:
-            if each_paper['title'] == paper_name and each_paper['year'] == paper_year:
-                return (paper_name, each_paper['paperId'], each_paper['year'])
+            if each_paper['title'] == paper_name: # and each_paper['year'] == paper_year:
+                return each_paper['paperId']
 
     return None
 
-def get_pdf_link(author_name: str, paper_name: str, paper_year: int) -> str:
+def evaluate_authors(paper: dict) -> str:
+    """
+    Evaluates the authors of the papers and returns the first instance of the target paper. 
+    """
+    authors = paper['authors']
+    for each_author in authors:
+        # print(f"Author: {each_author}")
+        paper_name = paper['title']
+        paper_year = paper['year']
+        paper_id = verify_paper_object(each_author, paper_name, paper_year)
+        if paper_id:
+            return paper_id
+
+    return None
+
+def get_pdf_link(paper: dict) -> str:
     """
     If it exists, returns the link to the pdf of the paper.
     """
-    paper_id = verify_paper_object(author_name, paper_name, paper_year)[1]
+    paper_id = evaluate_authors(paper)
     if paper_id:
-        paper = extr.get_paper(paper_id)
-        if paper['isOpenAccess']:
-            return paper['openAccessPdf']
-        else:
-            return None
-    else:
-        return None
+        paper_found = extr.get_paper(paper_id)
+        print(f"Paper: {paper_found['title']}")
+        print(f"PDF: {paper_found['isOpenAccess']}")
+        # print(f"PDF: {paper_found['openAccessPDF']}")
+        if paper_found['isOpenAccess']:
+            return paper_found['openAccessPdf']['url']
 
-def download_pdf(author_name: str, paper_name: str, paper_year: int) -> None:
+    return None
+
+def download_pdf(paper: dict) -> None:
     """
     Downloads the pdf of the paper.
     """
-    pdf_link = get_pdf_link(author_name, paper_name, paper_year)
+    pdf_link = get_pdf_link(paper)
     if pdf_link:
-        filepath = os.path.join('./pdfs', os.path.basename(pdf_link))
-        with open(filepath, 'wb') as f:
-            f.write(extr.requests.get_pdf(pdf_link).content)
-    else:
-        return None
+        print(f"Downloading: {pdf_link}")
+        with open(f'/workspaces/semantic-web/entregaUno/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
+            f.write(extr.get_pdf(pdf_link).content)
+    
+    return None
