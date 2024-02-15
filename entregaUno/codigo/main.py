@@ -3,7 +3,7 @@ Entrega 1 - Proyecto Semantic Web
 
 Integrantes:
 - Alejandro Salgado
-- Miguel
+- Miguel Zapata
 - Nicolás Klopstock
 """
 import json
