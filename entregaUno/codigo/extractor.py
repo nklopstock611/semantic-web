@@ -17,7 +17,7 @@ def verify_status_and_return(response, data: bool=False):
         ret = json.dumps(response.json(), indent=2)
         ret = json.loads(ret)
         if not data:
-            r eturn ret
+            return ret
         else:
             return ret['data']
     else:
@@ -38,7 +38,6 @@ def get_papers_from_author(author_name: tuple) -> dict:
     }
     """
     url = f'https://api.semanticscholar.org/graph/v1/author/search?query={author_name[0]}+{author_name[1]}'
-    print(url)
     response = requests.get(
         url,
         headers=headers,
@@ -49,6 +48,8 @@ def get_papers_from_author(author_name: tuple) -> dict:
     )
 
     return verify_status_and_return(response, True)
+
+# print(get_papers_from_author(('m', 'atiquzzaman')))
 
 def get_paper(paper_id: str):
     """
@@ -70,7 +71,6 @@ def get_paper(paper_id: str):
     """
     # TO-DO: tal vez volver todo esto en una misma función grande y que sea solo pasar parámetros
     url = f'https://api.semanticscholar.org/graph/v1/paper/{paper_id}'
-    print(url)
     response = requests.get(
         url,
         headers=headers,
@@ -80,6 +80,8 @@ def get_paper(paper_id: str):
     )
 
     return verify_status_and_return(response)
+
+# print(get_paper('59a0dabcfa4e8d8fe4a7e539413b4239c9bee631'))  
 
 def get_pdf(paper_link: str):
     """
