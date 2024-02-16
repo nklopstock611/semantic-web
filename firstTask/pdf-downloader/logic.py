@@ -53,7 +53,7 @@ def download_pdf(paper: dict) -> None:
     pdf_link = get_pdf_link(paper)
     if pdf_link:
         print(f"Downloading: {pdf_link}")
-        with open(f'/workspaces/semantic-web/entregaUno/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
+        with open(f'/workspaces/semantic-web/firstTask/pdf-downloader/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
             f.write(extr.get_pdf(pdf_link).content)
     
     return None

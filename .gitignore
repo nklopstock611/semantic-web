@@ -1,2 +1,6 @@
-entregaUno/codigo/credentials.json
-entregaUno/codigo/dict_split_2.json
+*.cpython-*
+
+firstTask/pdf-downloader/credentials.json
+firstTask/pdf-downloader/dict_split_2.json
+
+firstTask/pdf-analyzer/grobid_client_python

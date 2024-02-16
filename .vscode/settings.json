@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./entregaUno/codigo/grobid_client_python",
+        "./firstTask/pdf-analyzer/grobid_client_python"
+    ]
+}
