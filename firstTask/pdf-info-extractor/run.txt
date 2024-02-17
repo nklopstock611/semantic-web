@@ -1,6 +1,6 @@
 Execute server:
 
-cd firstTask/pdf-analyzer
+cd firstTask/pdf-info-extractor
 
 - First, clone and install the GROBID Python Client:
 

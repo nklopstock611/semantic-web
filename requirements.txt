@@ -1,3 +1,5 @@
 requests
 selenium
 pyautogui
+beautifulsoup4
+lxml
