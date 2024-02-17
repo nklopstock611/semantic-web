@@ -1,3 +1,4 @@
+import json
 from bs4 import BeautifulSoup
 
 metadata = {}
@@ -66,6 +67,10 @@ for each_author in soup_header.find_all('author'):
 
     metadata[idno]['authors'].append(metadata_author)
 
+with open('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/publication_dates.json', 'r') as f:
+    obj = json.load(f)
+    metadata[idno]['year'] = obj[title]
+
 metadata[idno]['abstract'] = soup_header.find('abstract').text
 
 # =========================== #
@@ -93,7 +98,6 @@ for each_reference in soup_references.find_all('biblstruct'):
     metadata_references['note'] = each_reference.find('note').text if each_reference.find('note') else None
 
     metadata[idno]['references'].append(metadata_references)
-
 
 print(metadata)
 

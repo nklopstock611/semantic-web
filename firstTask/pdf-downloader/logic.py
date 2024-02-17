@@ -1,4 +1,5 @@
 import os
+import json
 import extractor as extr
 
 def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> tuple:
@@ -53,7 +54,7 @@ def download_pdf(paper: dict) -> None:
     pdf_link = get_pdf_link(paper)
     if pdf_link:
         print(f"Downloading: {pdf_link}")
-        with open(f'/workspaces/semantic-web/firstTask/pdf-downloader/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
+        with open(f'C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
             f.write(extr.get_pdf(pdf_link).content)
     
     return None
