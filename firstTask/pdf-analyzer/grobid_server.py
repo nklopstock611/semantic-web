@@ -1,3 +1,4 @@
+# from grobid_client.grobid_client import GrobidClient
 from grobid_client.grobid_client import GrobidClient
 
 if __name__ == "__main__":
