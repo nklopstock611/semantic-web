@@ -73,6 +73,11 @@ if __name__ == "__main__":
     # toca iterar por cada archivo
     # tener un diccionario o alguna estructura que contenga el nombre del archivo y se pone en el parámetro
     download_xml('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/SSDBM09_PTS.pdf')
-    download_xml('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/Enunciado proyecto 1.pdf')
+    
+    select_service('processReferences')
+    # toca iterar por cada archivo
+    # tener un diccionario o alguna estructura que contenga el nombre del archivo y se pone en el parámetro
+    download_xml('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/SSDBM09_PTS.pdf')
+
     time.sleep(120)
     driver.quit()
