@@ -22,7 +22,7 @@ def main():
 
     for each_paper in papers:
         create_publication_dates_json()
-        data[papers[each_paper]['title']] = papers[each_paper]['year']
+        # data[papers[each_paper]['title']] = papers[each_paper]['year']
 
         # print(l.get_pdf_link(papers[each_paper]))
         print(l.download_pdf(papers[each_paper]))
