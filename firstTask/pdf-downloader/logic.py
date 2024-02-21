@@ -10,10 +10,11 @@ def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> t
     authors = extr.get_papers_from_author(author_name_tuple)
     
     for each_author in authors:
-        papers_list = each_author['papers']
-        for each_paper in papers_list:
-            if each_paper['title'] == paper_name: # and each_paper['year'] == paper_year:
-                return each_paper['paperId']
+        if each_author:
+            papers_list = each_author['papers']
+            for each_paper in papers_list:
+                if each_paper['title'] == paper_name: # and each_paper['year'] == paper_year:
+                    return each_paper['paperId']
 
     return None
 
@@ -24,11 +25,12 @@ def evaluate_authors(paper: dict) -> str:
     authors = paper['authors']
     for each_author in authors:
         # print(f"Author: {each_author}")
-        paper_name = paper['title']
-        paper_year = paper['year']
-        paper_id = verify_paper_object(each_author, paper_name, paper_year)
-        if paper_id:
-            return paper_id
+        if each_author:
+            paper_name = paper['title']
+            paper_year = paper['year']
+            paper_id = verify_paper_object(each_author, paper_name, paper_year)
+            if paper_id:
+                return paper_id
 
     return None
 
