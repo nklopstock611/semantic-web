@@ -4,7 +4,9 @@ import extractor as extr
 
 def save_data_in_json(data: dict):
     with open('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/publication_dates.json', 'w') as f:
-        json.dump(data, f, indent=4)
+        json_dict = json.loads(f)
+        json_dict.put(data)
+        json.dump(json_dict, f, indent=4)
 
 def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> tuple:
     """
