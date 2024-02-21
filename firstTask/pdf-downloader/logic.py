@@ -2,6 +2,17 @@ import os
 import json
 import extractor as extr
 
+def create_publication_dates_json():
+    try:
+        with open('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/publication_dates.json', 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+def save_data_in_json(data: dict):
+    with open('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/publication_dates.json', 'w') as f:
+        json.dump(data, f, indent=4)
+
 def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> tuple:
     """
     Verifies if paper_name has an object associated with author_name.
@@ -56,6 +67,7 @@ def download_pdf(paper: dict) -> None:
     pdf_link = get_pdf_link(paper)
     if pdf_link:
         print(f"Downloading: {pdf_link}")
+        save_data_in_json(paper['title'])
         with open(f'C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
             f.write(extr.get_pdf(pdf_link).content)
     
