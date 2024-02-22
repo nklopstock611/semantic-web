@@ -69,7 +69,7 @@ for each_author in soup_header.find_all('author'):
 
 with open('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/publication_dates.json', 'r') as f:
     obj = json.load(f)
-    metadata[idno]['year'] = obj[title]
+    metadata[idno]['year'] = obj[title][0]
 
 metadata[idno]['abstract'] = soup_header.find('abstract').text
 

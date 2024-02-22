@@ -2,10 +2,19 @@ import os
 import json
 import extractor as extr
 
-def save_data_in_json(data: dict):
-    with open('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/publication_dates.json', 'w') as f:
-        json_dict = json.loads(f)
-        json_dict.put(data)
+def save_data_in_json(data: dict, file_path: str = 'publication_dates.json'):
+    """
+    Saves data in publication_dates.json file.
+    """
+    try:
+        with open(file_path, 'r') as f:
+            json_dict = json.load(f)
+    except FileNotFoundError:
+        json_dict = {}
+    
+    json_dict.update(data)
+    
+    with open(file_path, 'w') as f:
         json.dump(json_dict, f, indent=4)
 
 def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> tuple:
@@ -62,7 +71,7 @@ def download_pdf(paper: dict) -> None:
     pdf_link = get_pdf_link(paper)
     if pdf_link:
         print(f"Downloading: {pdf_link}")
-        save_data_in_json({ paper['title']: paper['year'] })
+        save_data_in_json({ paper['title']: [ paper['year'], os.path.basename(pdf_link) ]})
         with open(f'C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
             f.write(extr.get_pdf(pdf_link).content)
     
