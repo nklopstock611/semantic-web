@@ -1,17 +1,12 @@
-Execute server:
-
 cd firstTask/pdf-info-extractor
 
-- First, clone and install the GROBID Python Client:
+- First, clone and install the scipdf_parser package from the following repository (it's based on GROBID)
+  it's recommended to use a virtual env:
 
-git clone https://github.com/kermitt2/grobid_client_python
-cd grobid_client_python
-python3 setup.py install
+pip install git+https://github.com/titipata/scipdf_parser
+python -m spacy download en_core_web_sm
 
 - Open ports and execute server:
 
 docker-compose up -d
 python grobid_server.py
-
-- A chromedriver.exe is needed to run webscraper.py
-https://googlechromelabs.github.io/chrome-for-testing/#stable

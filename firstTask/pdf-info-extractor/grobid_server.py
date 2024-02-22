@@ -1,7 +1,7 @@
-# from grobid_client.grobid_client import GrobidClient
-from grobid_client.grobid_client import GrobidClient
+import xml_analyzer as xmlq
+import scipdf
 
-if __name__ == "__main__":
-    pdf_file = 'SSDBM09_PTS'
-    client = GrobidClient(config_path="./config.json")
-    client.process("processFulltextDocument", f"/workspaces/semantic-web/entregaUno/pdfs/{pdf_file}.pdf", output=f"/workspaces/semantic-web/entregaUno/pdfs/{pdf_file}-out/", consolidate_citations=True, tei_coordinates=True, force=True)
+article = scipdf.parse_pdf('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/SSDBM09_PTS.pdf', soup=True)
+# print(xmlq.xml_query(article))
+
+# TO-DO: Acá hacer los CSVs
