@@ -1,6 +1,6 @@
 import os
 import json
-import extractor as extr
+import requester as reqr
 
 def save_data_in_json(data: dict, file_path: str = 'publication_dates.json'):
     """
@@ -22,7 +22,7 @@ def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> t
     Verifies if paper_name has an object associated with author_name.
     """
     author_name_tuple = (author_name[0], author_name[2:]) # author name format: "<name initial>\s<full last name>"
-    authors = extr.get_papers_from_author(author_name_tuple)
+    authors = reqr.get_papers_from_author(author_name_tuple)
     
     for each_author in authors:
         if each_author:
@@ -55,7 +55,7 @@ def get_pdf_link(paper: dict) -> str:
     """
     paper_id = evaluate_authors(paper)
     if paper_id:
-        paper_found = extr.get_paper(paper_id)
+        paper_found = reqr.get_paper(paper_id)
         print(f"Paper: {paper_found['title']}")
         print(f"PDF: {paper_found['isOpenAccess']}")
         # print(f"PDF: {paper_found['openAccessPDF']}")
@@ -73,6 +73,6 @@ def download_pdf(paper: dict) -> None:
         print(f"Downloading: {pdf_link}")
         save_data_in_json({ paper['title']: [ paper['year'], os.path.basename(pdf_link) ]})
         with open(f'C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
-            f.write(extr.get_pdf(pdf_link).content)
+            f.write(reqr.get_pdf(pdf_link).content)
     
     return None
