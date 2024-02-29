@@ -59,7 +59,7 @@ def get_pdf_link(paper: dict) -> str:
         print(f"Paper: {paper_found['title']}")
         print(f"PDF: {paper_found['isOpenAccess']}")
         # print(f"PDF: {paper_found['openAccessPDF']}")
-        if paper_found['isOpenAccess']:
+        if paper_found['isOpenAccess'] and paper_found['openAccessPdf']:
             return paper_found['openAccessPdf']['url']
 
     return None
@@ -73,6 +73,8 @@ def download_pdf(paper: dict) -> None:
         print(f"Downloading: {pdf_link}")
         save_data_in_json({ paper['title']: [ paper['year'], os.path.basename(pdf_link) ]})
         with open(f'C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/pdfs/{os.path.basename(pdf_link)}', 'wb') as f:
-            f.write(reqr.get_pdf(pdf_link).content)
+            pdf = reqr.get_pdf(pdf_link)
+            if pdf:
+                f.write(pdf.content)
     
     return None

@@ -23,7 +23,7 @@ def verify_status_and_return(response, data: bool=False):
     else:
         print(f"Error: {response.status_code}")
         print(json.dumps(response.json(), indent=2))
-        return None
+        # return None
 
 def get_papers_from_author(author_name: tuple) -> dict:
     """
