@@ -84,7 +84,7 @@ def xml_query(soup_obj: BeautifulSoup):
         metadata_author['email'] = each_author.find('email').text if each_author.find('email') else ''
 
         affiliation = soup_obj.find('affiliation')
-        metadata_author['affiliation'] = (affiliation.find('orgname', type="institution").text).replace(';', ',') if affiliation.find('orgname', type="insti>
+        metadata_author['affiliation'] = (affiliation.find('orgname', type="institution").text).replace(';', ',') if affiliation.find('orgname', type="institution") else ''
         metadata_author['addressLine'] = (affiliation.find('addrline').text).replace(';', ',') if affiliation.find('addrline') else ''
         metadata_author['postCode'] = (affiliation.find('postcode').text).replace(';', ',') if affiliation.find('postcode') else ''
         metadata_author['settlement'] = (affiliation.find('settlement').text).replace(';', ',') if affiliation.find('settlement') else ''

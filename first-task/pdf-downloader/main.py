@@ -1,5 +1,6 @@
 """
 Entrega 1 - Proyecto Semantic Web
+8 marzo 2024
 
 Integrantes:
 - Alejandro Salgado
@@ -7,7 +8,6 @@ Integrantes:
 - Nicolás Klopstock
 """
 import json
-import asyncio
 import logic as l
 import requester as r
 
@@ -16,7 +16,7 @@ def main():
         papers = json.load(f)
 
     items = list(papers.items())
-    starting_key = next((clave for clave, valor in papers.items() if valor['title'] == "A study of information seeking and retrieving, iii: Searchers, searc>
+    starting_key = next((clave for clave, valor in papers.items() if valor['title'] == "A study of information seeking and retrieving, iii: Searchers, searces, overlap"), None)
 
     i = 1
     print(len(papers))
@@ -30,8 +30,6 @@ def main():
             if found:
                 print(f"Paper: {papers[key]['title']}")
                 print(l.download_pdf(papers[key]))
-                # print(r.test(papers[key]['title']))
 
 if __name__ == '__main__':
    main()
-   # asyncio.run(main())
