@@ -1,4 +1,5 @@
 import json
+import random
 from bs4 import BeautifulSoup
 
 def get_meeting_address(string: str) -> tuple:
@@ -8,20 +9,20 @@ def get_meeting_address(string: str) -> tuple:
     meeting = ''
     address = ''
     index_address = None
-    
+
     index_comma = string.rfind(',')
     if index_comma == -1:
         return (string, '')
-    
+
     for i in range(index_comma - 1, -1, -1):
         if string[i].isupper():
             index_address = i
             break
-        
+
     if index_address != None:
         meeting = string[:index_address]
         address = string[index_address:]
-    
+
     return (meeting, address)
 
 def xml_query(soup_obj: BeautifulSoup):
@@ -64,11 +65,16 @@ def xml_query(soup_obj: BeautifulSoup):
     """
     metadata = {}
 
-    idno = soup_obj.find('idno').text
+    idno = soup_obj.find('idno').text if soup_obj.find('idno') != '' else random.randint(0, 150000)
+    print(idno)
     metadata[idno] = {}
 
-    title = soup_obj.find('title').text
-    metadata[idno]['title'] = title.replace(';', ',')
+    title = soup_obj.find('title').text if soup_obj.find('title') else None
+
+    if title:
+        metadata[idno]['title'] = title.replace(';', ',')
+    else:
+        metadata[idno]['title'] = None
 
     metadata[idno]['authors'] = []
     for each_author in soup_obj.find('analytic').find_all('author'):
@@ -78,7 +84,7 @@ def xml_query(soup_obj: BeautifulSoup):
         metadata_author['email'] = each_author.find('email').text if each_author.find('email') else ''
 
         affiliation = soup_obj.find('affiliation')
-        metadata_author['affiliation'] = (affiliation.find('orgname', type="institution").text).replace(';', ',') if affiliation.find('orgname', type="institution") else ''
+        metadata_author['affiliation'] = (affiliation.find('orgname', type="institution").text).replace(';', ',') if affiliation.find('orgname', type="insti>
         metadata_author['addressLine'] = (affiliation.find('addrline').text).replace(';', ',') if affiliation.find('addrline') else ''
         metadata_author['postCode'] = (affiliation.find('postcode').text).replace(';', ',') if affiliation.find('postcode') else ''
         metadata_author['settlement'] = (affiliation.find('settlement').text).replace(';', ',') if affiliation.find('settlement') else ''
@@ -86,9 +92,10 @@ def xml_query(soup_obj: BeautifulSoup):
 
         metadata[idno]['authors'].append(metadata_author)
 
-    with open('C:/Users/nklop/Universidad/Séptimo Semestre/Semantic Web/semantic-web/firstTask/pdf-downloader/publication_dates.json', 'r') as f:
+    with open('/home/estudiante/semantic-web/firstTask/pdf-downloader/publication_dates.json', 'r') as f:
         obj = json.load(f)
-        metadata[idno]['publication_year'] = obj[title][0]
+        print(title)
+        metadata[idno]['publication_year'] = obj[title.lower()][0] if title in obj else None
 
     metadata[idno]['abstract'] = ((soup_obj.find('abstract').text).replace(';', '')).replace('\n', '') if soup_obj.find('abstract') else ''
 
