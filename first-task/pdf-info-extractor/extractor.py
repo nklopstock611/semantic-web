@@ -1,4 +1,5 @@
 import json
+import re
 
 import scipdf
 import xml_analyzer as xmlq
@@ -23,6 +24,18 @@ def verify_unique_papers(file_path: str='/home/estudiante/semantic-web/firstTask
        with open(file_path, 'w') as f:
            json.dump(json_dict, f)
 
+    return None
+
+def normalize_title(title: str) -> str:
+    if title:
+        # to lowercase
+        title = title.lower()
+        # remove puntuation
+        title = re.sub(r'[^\w\s]', '', title)
+        # remove extra spaces
+        title = re.sub(r'\s+', ' ', title).strip()
+        return title
+    
     return None
 
 def create_csv(metadata: dict) -> None:
