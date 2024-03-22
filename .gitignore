@@ -7,5 +7,3 @@ firstTask/pdf-analyzer/grobid_client_python
 firstTask/pdf-info-extractor/webscraper.py
 
 env/
-
-metadata.json
