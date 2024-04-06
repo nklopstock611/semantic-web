@@ -1,6 +1,10 @@
 import json
 import requests
+import threading
 from time import sleep
+from typing import List
+
+lock = threading.Lock()
 
 with open('./credentials.json') as f:
     json_obj = json.load(f)
@@ -34,41 +38,79 @@ def verify_status_and_return(response, data: int=0):
         print(f"Error: {response.status_code}")
         print(json.dumps(response.json(), indent=2))
 
-def get_references(metadata) -> list:
+def get_references(paper: dict) -> list:
     titles = []
-    for each_paper in metadata:
-        references = metadata[each_paper]['references']
-        for each_reference in references:
+    references = paper['references']
+    for each_reference in references:
+        if each_reference['title'].lower() not in titles and each_reference['title'].lower() != paper['title'].lower():
             titles.append(each_reference['title'])
+            
     return titles
 
-def find_papers(papers_titles: list) -> dict:
-    ids = []
-    for each_paper in papers_titles:
-        query_params = {'query': each_paper,
-                        "fields": "corpusId,title,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,publicationDate"
-        }
-        url = f'https://api.semanticscholar.org/graph/v1/paper/search/'
-        response = requests.get(
-            url,
-            headers=headers,
-            params=query_params
-        )
+def find_paper_and_append_id(paper_title: str, ids: List[str], headers: dict):
+    query_params = {
+        'query': paper_title,
+        "fields": "corpusId,title,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,publicationDate"
+    }
+    url = 'https://api.semanticscholar.org/graph/v1/paper/search/'
+    response = requests.get(url, headers=headers, params=query_params)
+    
+    if response.status_code == 200:
+        ret = json.loads(response.text)
+        try:
+            paper_id = ret['data'][0]['paperId']
+            with lock:
+                ids.append(paper_id)
+                
+            sleep(2)
+        except KeyError:
+            print('Error: No "data" key')
+    else:
+        print(f"Error: {response.status_code}")
+        print(json.dumps(response.json(), indent=2))
 
-        if response.status_code == 200:
-            ret = json.dumps(response.json(), indent=2)
-            ret = json.loads(ret)
-            try:
-                ids.append(ret['data'][0]['paperId'])
-                print('FOUND:', ret['data'][0]['title'])
-                sleep(2)
-            except KeyError:
-                print('Error: No "data" key')
-        else:
-            print(f"Error: {response.status_code}")
-            print(json.dumps(response.json(), indent=2))
+def find_papers(papers_titles: List[str], headers: dict) -> List[str]:
+    ids = []
+    threads = []
+    
+    for each_paper in papers_titles:
+        # Crear un hilo para cada búsqueda de paper
+        thread = threading.Thread(target=find_paper_and_append_id, args=(each_paper, ids, headers))
+        threads.append(thread)
+        thread.start()
+    
+    # Esperar a que todos los hilos terminen
+    for thread in threads:
+        thread.join()
     
     return ids
+
+# def find_papers(papers_titles: list) -> dict:
+#     ids = []
+#     for each_paper in papers_titles:
+#         query_params = {'query': each_paper,
+#                         "fields": "corpusId,title,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,publicationDate"
+#         }
+#         url = f'https://api.semanticscholar.org/graph/v1/paper/search/'
+#         response = requests.get(
+#             url,
+#             headers=headers,
+#             params=query_params
+#         )
+
+#         if response.status_code == 200:
+#             ret = json.dumps(response.json(), indent=2)
+#             ret = json.loads(ret)
+#             try:
+#                 ids.append(ret['data'][0]['paperId'])
+#                 print('FOUND:', ret['data'][0]['title'])
+#             except KeyError:
+#                 print('Error: No "data" key')
+#         else:
+#             print(f"Error: {response.status_code}")
+#             print(json.dumps(response.json(), indent=2))
+    
+#     return ids 
 
 def get_papers_batch(ids: list):
     """
@@ -86,12 +128,14 @@ def get_papers_batch(ids: list):
     if response.status_code == 200:
         ret = json.dumps(response.json(), indent=2)
         ret = json.loads(ret)
-        print(f"Paper: {ret['title']}")
-        print(f"PDF: {ret['isOpenAccess']}")
-        if ret['isOpenAccess'] and ret['openAccessPdf']:
-            if ret['openAccessPdf']['url'][:-4] == '.pdf':
-                download_paper(ret)
-        return ret
+        for each_paper in ret:
+            print(f"Paper: {each_paper['title']}")
+            print(f"PDF: {each_paper['isOpenAccess']}, {each_paper['openAccessPdf']}")
+            if each_paper['openAccessPdf'] != None:
+                if each_paper['openAccessPdf']['url'][-4:] == '.pdf':
+                    download_paper(each_paper)
+                    
+        sleep(5)
     else:
         print(f"Error: {response.status_code}")
         print(json.dumps(response.json(), indent=2))
@@ -101,6 +145,7 @@ def download_paper(paper: dict):
     Downloads the paper from the url.
     """
     url = paper['openAccessPdf']['url']
+    print(f"Downloading: {paper['title']}")
     response = requests.get(url)
     if response.status_code == 200:
         with open(f"C:/Users/nklop/Universidad/Septimo Semestre/Semantic Web/semantic-web/first-task/pdf-downloader/spdfs/{paper['paperId']}.pdf", 'wb') as f:
@@ -110,9 +155,15 @@ def download_paper(paper: dict):
         print(json.dumps(response.json(), indent=2))
 
 if __name__ == '__main__':
-    titles = get_references(metadata)
-    print('references found')
-    ids = find_papers(titles)
-    print('IDS:', ids)
-    get_papers_batch(ids)
-    # download_paper(get_papers_batch(ids))
+    with open('C:/Users/nklop/Universidad/Septimo Semestre/Semantic Web/semantic-web/first-task/metadata.json') as f:
+        metadata = json.load(f)
+    
+    for each_paper in metadata:
+        print('INIT PAPER:', metadata[each_paper]['title'])
+        titles = get_references(metadata[each_paper])
+        print('references found')
+        ids = find_papers(titles, headers)
+        print('IDS:', ids)
+        get_papers_batch(ids)
+        print('DURMIENDO')
+        sleep(2)
