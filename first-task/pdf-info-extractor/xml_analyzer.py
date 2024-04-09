@@ -25,7 +25,7 @@ def get_meeting_address(string: str) -> tuple:
 
     return (meeting, address)
 
-def xml_query(soup_obj: BeautifulSoup):
+def xml_query(soup_obj: BeautifulSoup, json: bool):
     """
     This function receives a BeautifulSoup object and returns a dictionary with the metadata of the article.
 
@@ -92,10 +92,11 @@ def xml_query(soup_obj: BeautifulSoup):
 
         metadata[idno]["paper_authors"].append(metadata_author)
 
-    with open('/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
-        obj = json.load(f)
-        print(title)
-        metadata[idno]["paper_publication_year"] = obj[title][0] if title in obj else None
+    if json:
+        with open('/workspaces/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
+            obj = json.load(f)
+            print(title)
+            metadata[idno]["paper_publication_year"] = obj[title][0] if title in obj else None
 
     metadata[idno]["paper_abstract"] = ((soup_obj.find('abstract').text).replace(';', '')).replace('\n', '') if soup_obj.find('abstract') else ''
 
