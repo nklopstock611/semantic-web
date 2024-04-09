@@ -17,7 +17,7 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
 
-with open('C:/Users/nklop/Universidad/Septimo Semestre/Semantic Web/semantic-web/first-task/metadata.json') as f:
+with open('/home/estudiante/semantic-web/first-task/metadata.json') as f:
     metadata = json.load(f)
     
 def verify_status_and_return(response, data: int=0):
@@ -62,7 +62,7 @@ def find_paper_and_append_id(paper_title: str, ids: List[str], headers: dict):
             with lock:
                 ids.append(paper_id)
                 
-            sleep(2)
+            sleep(5)
         except KeyError:
             print('Error: No "data" key')
     else:
@@ -146,24 +146,48 @@ def download_paper(paper: dict):
     """
     url = paper['openAccessPdf']['url']
     print(f"Downloading: {paper['title']}")
-    response = requests.get(url)
-    if response.status_code == 200:
-        with open(f"C:/Users/nklop/Universidad/Septimo Semestre/Semantic Web/semantic-web/first-task/pdf-downloader/spdfs/{paper['paperId']}.pdf", 'wb') as f:
-            f.write(response.content)
-    else:
-        print(f"Error: {response.status_code}")
-        print(json.dumps(response.json(), indent=2))
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            with open(f"/home/estudiante/semantic-web/first-task/pdf-downloader/spdfs/{paper['paperId']}.pdf", 'wb') as f:
+                f.write(response.content)
+        else:
+            print(f"Error: {response.status_code}")
+            print(json.dumps(response.json(), indent=2))
+    except requests.exceptions.ConnectionError as e:
+        print("Error de conexión: No se pudo establecer una conexión con el servidor.")
+    except json.JSONDecodeError:
+        print("Error de JSON Decoding.")
+    except requests.exceptions.TooManyRedirects:
+        print("Muchos redirects")
+    except requests.exceptions.ChunkedEncodingError:
+        print("Chunk Encodign Error")
 
 if __name__ == '__main__':
-    with open('C:/Users/nklop/Universidad/Septimo Semestre/Semantic Web/semantic-web/first-task/metadata.json') as f:
+    with open('/home/estudiante/semantic-web/first-task/pdf-downloader/cache.txt', 'w') as f:
+        # para reiniciar el cache cada ejecución...
+         pass
+
+    with open('/home/estudiante/semantic-web/first-task/metadata.json') as f:
         metadata = json.load(f)
+
+    items = list(metadata.items())
+    starting_key = next((clave for clave, valor in metadata.items() if valor['title'] == "Placing Flickr Photos on a Map"), None)
     
-    for each_paper in metadata:
-        print('INIT PAPER:', metadata[each_paper]['title'])
-        titles = get_references(metadata[each_paper])
-        print('references found')
-        ids = find_papers(titles, headers)
-        print('IDS:', ids)
-        get_papers_batch(ids)
-        print('DURMIENDO')
-        sleep(2)
+    if starting_key:
+        found = False
+        for key, value in metadata.items():
+            if key == starting_key:
+                found = True
+            elif found:
+                print('INIT PAPER:', metadata[key]['title'])
+                if metadata[key]['title']:
+                    with open('/home/estudiante/semantic-web/first-task/pdf-downloader/cache.txt', 'a') as f:
+                        f.write(metadata[key]['title'] + '\n')
+                    titles = get_references(metadata[key])
+                    print('references found')
+                    ids = find_papers(titles, headers)
+                    print('IDS:', ids)
+                    get_papers_batch(ids)
+                    print('DURMIENDO')
+                    sleep(30)
