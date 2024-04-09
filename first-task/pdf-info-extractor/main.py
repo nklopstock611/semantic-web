@@ -36,25 +36,31 @@ def make_pdfs_set(json_dict: dict):
     return pdfs
 
 def main():
-    pdfs_dir = '/workspaces/semantic-web/first-task/pdf-downloader/pdfs/'
-    with open('/workspaces/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r', encoding='utf-8') as f:
+    pdfs_dir = '/home/estudiante/semantic-web/first-task/pdf-downloader/pdfs/'
+    with open('/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r', encoding='utf-8') as f:
         json_dict = json.load(f)
 
     pdfs = make_pdfs_set(json_dict)
+    print('PDFs EN JSON', len(pdfs))
+    i = 1
     for each_pdf in os.listdir(pdfs_dir):
         if each_pdf.endswith('.pdf'):
             pdf_name = each_pdf[:-4]
             in_json = pdf_name in pdfs
             try:
-		        # pdf_path = "/home/estudiante/semantic-web/first-task/pdf-downloader/pdfs/" + pdf_file
+		# pdf_path = "/home/estudiante/semantic-web/first-task/pdf-downloader/pdfs/" + pdf_file
                 pdf_path = pdfs_dir + each_pdf
-                print('Extracting Metadata From', pdf_name)
-                article = scipdf.parse_pdf(pdf_path, soup=True)
-                metadata = xmlq.xml_query(article, in_json)
-                # extr.create_csv(metadata)
-                extr.create_json(metadata)
-                print(i)
-                i += 1
+                print('Extracting Metadata From', pdf_path, in_json)
+                with open(pdf_path, 'r', encoding='utf-8') as pdf:
+                    article = scipdf.parse_pdf(pdf_path, soup=True)
+                    print('Got Article!')
+                    metadata = xmlq.xml_query(article, in_json)
+                    print('Got Metadata!')
+                    # extr.create_csv(metadata)
+                    extr.create_json(metadata)
+                    print('JSON Modified!')
+                    print(i)
+                    i += 1
             except AttributeError:
                 print('Error while parsing PDF to XML')
             except FileNotFoundError:

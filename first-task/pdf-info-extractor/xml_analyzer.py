@@ -93,7 +93,7 @@ def xml_query(soup_obj: BeautifulSoup, json: bool):
         metadata[idno]["paper_authors"].append(metadata_author)
 
     if json:
-        with open('/workspaces/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
+        with open('/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
             obj = json.load(f)
             print(title)
             metadata[idno]["paper_publication_year"] = obj[title][0] if title in obj else None
