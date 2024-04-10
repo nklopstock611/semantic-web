@@ -36,8 +36,8 @@ def make_pdfs_set(json_dict: dict):
     return pdfs
 
 def main():
-    pdfs_dir = '/home/estudiante/semantic-web/first-task/pdf-downloader/pdfs/'
-    with open('/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r', encoding='utf-8') as f:
+    pdfs_dir = '/workspaces/semantic-web/first-task/pdf-downloader/pdfs/'
+    with open('/workspaces/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r', encoding='utf-8') as f:
         json_dict = json.load(f)
 
     pdfs = make_pdfs_set(json_dict)
@@ -61,11 +61,10 @@ def main():
                     print('JSON Modified!')
                     print(i)
                     i += 1
-            except AttributeError:
-                print('Error while parsing PDF to XML')
+            # except AttributeError:
+            #     print('Error while parsing PDF to XML')
             except FileNotFoundError:
                 print('PDF not found!')
-
 
 
 if __name__ == '__main__':

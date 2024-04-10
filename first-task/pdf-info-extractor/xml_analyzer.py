@@ -1,6 +1,9 @@
+import re
 import json
 import random
 from bs4 import BeautifulSoup
+
+pattern = re.compile(r'\[.*?\]')
 
 def get_meeting_address(string: str) -> tuple:
     """
@@ -25,7 +28,7 @@ def get_meeting_address(string: str) -> tuple:
 
     return (meeting, address)
 
-def xml_query(soup_obj: BeautifulSoup, json: bool):
+def xml_query(soup_obj: BeautifulSoup, is_in_json: bool):
     """
     This function receives a BeautifulSoup object and returns a dictionary with the metadata of the article.
 
@@ -34,7 +37,9 @@ def xml_query(soup_obj: BeautifulSoup, json: bool):
             'title': '<title>',
             'authors': ['<author>', '<author>', ...],
             'publication_year': '<year>',
+            'introduction': '<introduction>',
             'abstract': '<abstract>',
+            'conclusions': '<conclusions>',
             'references': ['<reference>', '<reference>', ...]
         },
     }
@@ -92,13 +97,18 @@ def xml_query(soup_obj: BeautifulSoup, json: bool):
 
         metadata[idno]["paper_authors"].append(metadata_author)
 
-    if json:
-        with open('/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
+    if is_in_json:
+        with open('/workspaces/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
             obj = json.load(f)
             print(title)
             metadata[idno]["paper_publication_year"] = obj[title][0] if title in obj else None
 
+    divs = soup_obj.find_all('div', attrs={'xmlns': 'http://www.tei-c.org/ns/1.0'})
+    filtered_divs = [div for div in divs if "Introduction" in div.text]
+    metadata[idno]["paper_introduction"] = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')][0]
     metadata[idno]["paper_abstract"] = ((soup_obj.find('abstract').text).replace(';', '')).replace('\n', '') if soup_obj.find('abstract') else ''
+    filtered_divs = [div for div in divs if "Conclusions" in div.text]
+    metadata[idno]["paper_conclusions"] = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')][0]
 
     metadata[idno]["paper_references"] = []
     for each_reference in soup_obj.find_all('biblstruct'):
