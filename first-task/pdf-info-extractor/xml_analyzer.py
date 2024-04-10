@@ -98,17 +98,21 @@ def xml_query(soup_obj: BeautifulSoup, is_in_json: bool):
         metadata[idno]["paper_authors"].append(metadata_author)
 
     if is_in_json:
-        with open('/workspaces/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
+        with open('/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
             obj = json.load(f)
             print(title)
             metadata[idno]["paper_publication_year"] = obj[title][0] if title in obj else None
 
     divs = soup_obj.find_all('div', attrs={'xmlns': 'http://www.tei-c.org/ns/1.0'})
     filtered_divs = [div for div in divs if "Introduction" in div.text]
-    metadata[idno]["paper_introduction"] = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')][0]
+    introduction = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')]
+    if introduction:
+        metadata[idno]["paper_introduction"] = introduction[0]
     metadata[idno]["paper_abstract"] = ((soup_obj.find('abstract').text).replace(';', '')).replace('\n', '') if soup_obj.find('abstract') else ''
     filtered_divs = [div for div in divs if "Conclusions" in div.text]
-    metadata[idno]["paper_conclusions"] = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')][0]
+    conclusion = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')]
+    if conclusion:
+        metadata[idno]["paper_conclusions"] = conclusion[0]
 
     metadata[idno]["paper_references"] = []
     for each_reference in soup_obj.find_all('biblstruct'):
