@@ -1,6 +1,6 @@
 *.cpython-*
 
-first-task/pdf-downloader/credentials.json
+credentials.json
 first-task/pdf-downloader/dict_split_2.json
 first-task/pdf-downloader/pdfs/
 

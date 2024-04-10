@@ -3,3 +3,4 @@ selenium
 pyautogui
 beautifulsoup4
 lxml
+textrazor
