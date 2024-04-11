@@ -36,7 +36,7 @@ def main():
                 with open(pdf_path, 'r', encoding='utf-8') as pdf:
                     article = scipdf.parse_pdf(pdf_path, soup=True)
                     print('Got Article!')
-                    metadata = xmlq.xml_query(article, in_json)
+                    metadata = xmlq.xml_query(article, each_pdf, in_json)
                     print('Got Metadata!')
                     # extr.create_csv(metadata)
                     extr.create_json(metadata)

@@ -29,7 +29,7 @@ def get_meeting_address(string: str) -> tuple:
 
     return (meeting, address)
 
-def xml_query(soup_obj: BeautifulSoup, is_in_json: bool):
+def xml_query(soup_obj: BeautifulSoup, pdf_name: str, is_in_json: bool):
     """
     This function receives a BeautifulSoup object and returns a dictionary with the metadata of the article.
 
@@ -135,5 +135,7 @@ def xml_query(soup_obj: BeautifulSoup, is_in_json: bool):
         metadata_references["reference_paper_note"] = (each_reference.find('note').text).replace(';', ',') if each_reference.find('note') else ''
 
         metadata[idno]["paper_references"].append(metadata_references)
+        
+        metadata[idno]["paper_downloaded_pdf"] = pdf_name
 
     return metadata
