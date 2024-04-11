@@ -4,6 +4,10 @@ import threading
 from time import sleep
 from typing import List
 
+metadata_path = '/semantic-web/first-task/metadata.json'
+pdf_path = '/semantic-web/first-task/pdf-downloader/spdfs/'
+cache_path = '/semantic-web/first-task/pdf-downloader/cache.txt'
+
 lock = threading.Lock()
 
 with open('./credentials.json') as f:
@@ -17,28 +21,13 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
 
-with open('/home/estudiante/semantic-web/first-task/metadata.json') as f:
+with open(metadata_path) as f:
     metadata = json.load(f)
-    
-def verify_status_and_return(response, data: int=0):
-    """
-    Verifies the status of the response and returns the data
-    if it's a 200 status code.
-    """
-    if response.status_code == 200:
-        ret = json.dumps(response.json(), indent=2)
-        ret = json.loads(ret)
-        if data == 0:
-            return ret
-        elif data == 1:
-            return ret['data']
-        elif data == 2:
-            return ret['data'][0]
-    else:
-        print(f"Error: {response.status_code}")
-        print(json.dumps(response.json(), indent=2))
 
 def get_references(paper: dict) -> list:
+    """
+    Gets the references from one paper.
+    """
     titles = []
     references = paper['references']
     for each_reference in references:
@@ -48,6 +37,10 @@ def get_references(paper: dict) -> list:
     return titles
 
 def find_paper_and_append_id(paper_title: str, ids: List[str], headers: dict):
+    """
+    Requests the paper, if found, appends the ID to a list of ids.
+    This functino is used to find the papers from a references list.
+    """
     query_params = {
         'query': paper_title,
         "fields": "corpusId,title,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,publicationDate"
@@ -74,43 +67,16 @@ def find_papers(papers_titles: List[str], headers: dict) -> List[str]:
     threads = []
     
     for each_paper in papers_titles:
-        # Crear un hilo para cada búsqueda de paper
+        # Creates a thread for each paper
         thread = threading.Thread(target=find_paper_and_append_id, args=(each_paper, ids, headers))
         threads.append(thread)
         thread.start()
     
-    # Esperar a que todos los hilos terminen
+    # Waits for all threads to finish
     for thread in threads:
         thread.join()
     
     return ids
-
-# def find_papers(papers_titles: list) -> dict:
-#     ids = []
-#     for each_paper in papers_titles:
-#         query_params = {'query': each_paper,
-#                         "fields": "corpusId,title,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,publicationDate"
-#         }
-#         url = f'https://api.semanticscholar.org/graph/v1/paper/search/'
-#         response = requests.get(
-#             url,
-#             headers=headers,
-#             params=query_params
-#         )
-
-#         if response.status_code == 200:
-#             ret = json.dumps(response.json(), indent=2)
-#             ret = json.loads(ret)
-#             try:
-#                 ids.append(ret['data'][0]['paperId'])
-#                 print('FOUND:', ret['data'][0]['title'])
-#             except KeyError:
-#                 print('Error: No "data" key')
-#         else:
-#             print(f"Error: {response.status_code}")
-#             print(json.dumps(response.json(), indent=2))
-    
-#     return ids 
 
 def get_papers_batch(ids: list):
     """
@@ -149,7 +115,7 @@ def download_paper(paper: dict):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            with open(f"/home/estudiante/semantic-web/first-task/pdf-downloader/spdfs/{paper['paperId']}.pdf", 'wb') as f:
+            with open(f"{pdf_path}{paper['paperId']}.pdf", 'wb') as f:
                 f.write(response.content)
         else:
             print(f"Error: {response.status_code}")
@@ -164,14 +130,14 @@ def download_paper(paper: dict):
         print("Chunk Encodign Error")
 
 if __name__ == '__main__':
-    with open('/home/estudiante/semantic-web/first-task/pdf-downloader/cache.txt', 'w') as f:
-        # para reiniciar el cache cada ejecución...
+    with open(cache_path, 'w') as f:
+        # to restart the cache for each execution...
          pass
 
-    with open('/home/estudiante/semantic-web/first-task/metadata.json') as f:
+    with open(metadata_path) as f:
         metadata = json.load(f)
 
-    items = list(metadata.items())
+    # if the download is interrupted, you can start from a specific paper
     starting_key = next((clave for clave, valor in metadata.items() if valor['title'] == "Placing Flickr Photos on a Map"), None)
     
     if starting_key:
@@ -182,12 +148,13 @@ if __name__ == '__main__':
             elif found:
                 print('INIT PAPER:', metadata[key]['title'])
                 if metadata[key]['title']:
-                    with open('/home/estudiante/semantic-web/first-task/pdf-downloader/cache.txt', 'a') as f:
+                    with open(cache_path, 'a') as f:
                         f.write(metadata[key]['title'] + '\n')
+                        
                     titles = get_references(metadata[key])
                     print('references found')
                     ids = find_papers(titles, headers)
                     print('IDS:', ids)
                     get_papers_batch(ids)
-                    print('DURMIENDO')
+                    print('SLEEPING ZZzzz...')
                     sleep(30)

@@ -9,13 +9,12 @@ Integrantes:
 """
 import json
 import logic as l
-import requester as r
 
 def main():
     with open('./dict_split_2.json') as f:
         papers = json.load(f)
 
-    items = list(papers.items())
+    # if the download is interrupted, you can start from a specific paper
     starting_key = next((clave for clave, valor in papers.items() if valor['title'] == "A study of information seeking and retrieving, iii: Searchers, searces, overlap"), None)
 
     i = 1

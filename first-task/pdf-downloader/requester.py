@@ -12,6 +12,23 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
 
+"""
+1 - Entrar al arreglo de autores
+2 - Recorrer el arreglo de autores
+3 - Para cada autor, verificar si está el paper objetivo
+    (es decir, comparar el título del JSON con los asociados al autor)
+
+    Caso 1 -> está el paper
+        1.1 - sacar ID
+        1.2 - request GET para sacar detalles del paper
+        1.3 - ver si tiene el link de descarga
+        1.4 - WEBSCRAPPER (o no sé):
+            1.4.1 - Descargar el pdf
+
+    Caso 2 -> no está el paper
+        1.1 - acaba el proceso y sigue al otro autor
+"""
+
 def verify_status_and_return(response, data: int=0):
     """
     Verifies the status of the response and returns the data
@@ -48,13 +65,15 @@ def get_papers_from_author(author_name: tuple) -> dict:
         headers=headers,
         params={
             "fields": 'name,papers.title,papers.year',
-            # "limit": 1
         }
     )
 
     return verify_status_and_return(response, True)
 
 def find_paper(paper_title: str) -> dict:
+    """
+    Returns the details of the paper in JSON format.    
+    """
     query_params = {'query': paper_title,
                     "fields": "corpusId,title,year,referenceCount,citationCount,influentialCitationCount,isOpenAccess,openAccessPdf,publicationDate"
     }
@@ -69,7 +88,6 @@ def find_paper(paper_title: str) -> dict:
         ret = json.dumps(response.json(), indent=2)
         ret = json.loads(ret)
         try:
-#        print('AAAA:', ret['data'][0])
             return ret['data'][0]
         except KeyError:
             print('Error: No "data" key')
@@ -95,7 +113,6 @@ def get_paper(paper_id: str):
         "publicationDate": "2015-01-17",
     }
     """
-    # TO-DO: tal vez volver todo esto en una misma función grande y que sea solo pasar parámetros
     url = f'https://api.semanticscholar.org/graph/v1/paper/{paper_id}'
     response = requests.get(
         url,
@@ -118,22 +135,3 @@ def get_pdf(paper_link: str):
     except requests.exceptions.RequestException as e:
         print(f"Error al obtener el PDF: {e}")
         return None
-
-"""
-1 - Entrar al arreglo de autores
-2 - Recorrer el arreglo de autores
-3 - Para cada autor, verificar si está el paper objetivo
-    (es decir, comparar el título del JSON con los asociados al autor)
-
-    Caso 1 -> está el paper
-        1.1 - sacar ID
-        1.2 - request GET para sacar detalles del paper
-        1.3 - ver si tiene el link de descarga
-        1.4 - WEBSCRAPPER (o no sé):
-            1.4.1 - Descargar el pdf
-
-    Caso 2 -> no está el paper
-        1.1 - acaba el proceso y sigue al otro autor
-
-De pronto ayuda hacer THREADS? un thread para cada autor? -> me da cosa el tema de número de request... 5k cada 5 mins...
-"""

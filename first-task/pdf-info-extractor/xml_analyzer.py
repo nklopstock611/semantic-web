@@ -4,6 +4,7 @@ import random
 from bs4 import BeautifulSoup
 
 pattern = re.compile(r'\[.*?\]')
+seen_pdfs_path = '/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
 
 def get_meeting_address(string: str) -> tuple:
     """
@@ -98,7 +99,7 @@ def xml_query(soup_obj: BeautifulSoup, is_in_json: bool):
         metadata[idno]["paper_authors"].append(metadata_author)
 
     if is_in_json:
-        with open('/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json', 'r') as f:
+        with open(seen_pdfs_path, 'r') as f:
             obj = json.load(f)
             print(title)
             metadata[idno]["paper_publication_year"] = obj[title][0] if title in obj else None
@@ -136,4 +137,3 @@ def xml_query(soup_obj: BeautifulSoup, is_in_json: bool):
         metadata[idno]["paper_references"].append(metadata_references)
 
     return metadata
-
