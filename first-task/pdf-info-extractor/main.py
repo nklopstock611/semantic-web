@@ -4,8 +4,8 @@ import scipdf
 import xml_analyzer as xmlq
 import extractor as extr
 
-pdfs_path = '/semantic-web/first-task/pdf-downloader/pdfs/'
-seen_pdfs_path = '/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
+pdfs_path = '/home/estudiante/semantic-web/first-task/pdf-downloader/pdfs/'
+seen_pdfs_path = '/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
 
 def make_pdfs_set(json_dict: dict):
     """

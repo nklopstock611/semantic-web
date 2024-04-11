@@ -3,8 +3,8 @@ import re
 import scipdf
 import xml_analyzer as xmlq
 
-seen_pdfs_path = '/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
-metadata_path = '/semantic-web/first-task/metadata3.json'
+seen_pdfs_path = '/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
+metadata_path = '/home/estudiante/semantic-web/first-task/metadata4.json'
 
 def verify_unique_papers(file_path: str=seen_pdfs_path):
     """
