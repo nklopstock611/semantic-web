@@ -43,6 +43,8 @@ def get_analytics_json(json_obj: dict, json_obj_id: str) -> dict:
     response = {}
     response["paper_id"] = json_obj_id
 
+    response["paper_downloaded_pdf"] = json_obj["paper_downloaded_pdf"]
+
     title = json_obj["paper_title"]
     response["title"] = title
     trans_resp = transform_response(client.analyze(title))

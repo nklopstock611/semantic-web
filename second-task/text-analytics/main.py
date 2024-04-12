@@ -2,7 +2,7 @@ import json
 import texts_analytics as ta
 
 new_metadata_path = '/home/estudiante/semantic-web/second-task/metadata_keywords.json'
-metadata_path = '/home/estudiante/semantic-web/first-task/metadata3.json'
+metadata_path = '/home/estudiante/semantic-web/first-task/metadata4.json'
 
 def create_json(metadata: dict) -> None:
     for each_article in metadata:
