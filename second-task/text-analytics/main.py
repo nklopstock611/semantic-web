@@ -1,18 +1,21 @@
 import json
 import texts_analytics as ta
 
+new_metadata_path = '/home/estudiante/semantic-web/second-task/metadata_keywords.json'
+metadata_path = '/home/estudiante/semantic-web/first-task/metadata3.json'
+
 def create_json(metadata: dict) -> None:
     for each_article in metadata:
-        with open('/workspaces/semantic-web/second-task/metadata4.json', 'r') as f:
+        with open(new_metadata_path, 'r') as f:
             json_dict = json.load(f)
 
         json_dict.update({ each_article: metadata[each_article] })
 
-        with open('/workspaces/semantic-web/second-task/metadata4.json', 'w') as f:
+        with open(new_metadata_path, 'w') as f:
             json.dump(json_dict, f)
 
 def main():
-    with open('/workspaces/semantic-web/first-task/metadata3.json', 'r', encoding='utf-8') as f:
+    with open(metadata_path, 'r', encoding='utf-8') as f:
         metadata = json.load(f)
     
     for each_paper in metadata:

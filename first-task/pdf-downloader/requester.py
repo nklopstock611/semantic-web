@@ -1,7 +1,9 @@
 import requests
 import json
 
-with open('credentials.json') as f:
+credentials_path = '/semantic-web/credentials.json'
+
+with open(credentials_path) as f:
     json_obj = json.load(f)
 
 api_key = json_obj["API_KEY_SS"]

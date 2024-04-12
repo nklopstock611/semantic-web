@@ -1,7 +1,9 @@
 import json
 import textrazor
 
-with open("/workspaces/semantic-web/credentials.json", "r") as f:
+credentials_path = '/home/estudiante/semantic-web/credentials.json'
+
+with open(credentials_path, "r") as f:
     json_obj = json.load(f)
 
 textrazor.api_key = json_obj["API_KEY_TR"]

@@ -4,13 +4,14 @@ import threading
 from time import sleep
 from typing import List
 
+credentials_path = '/semantic-web/credentials.json'
 metadata_path = '/semantic-web/first-task/metadata.json'
 pdf_path = '/semantic-web/first-task/pdf-downloader/spdfs/'
 cache_path = '/semantic-web/first-task/pdf-downloader/cache.txt'
 
 lock = threading.Lock()
 
-with open('./credentials.json') as f:
+with open(credentials_path) as f:
     json_obj = json.load(f)
 
 api_key = json_obj["API_KEY_SS"]
