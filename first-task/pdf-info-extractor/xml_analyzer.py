@@ -72,8 +72,10 @@ def xml_query(soup_obj: BeautifulSoup, pdf_name: str, is_in_json: bool):
     metadata = {}
 
     idno = soup_obj.find('idno').text if soup_obj.find('idno') != '' else random.randint(0, 150000)
-    print(idno)
+    print(idno, pdf_name)
     metadata[idno] = {}
+
+    metadata[idno]["paper_downloaded_pdf"] = pdf_name
 
     title = soup_obj.find('title').text if soup_obj.find('title') else None
 
@@ -136,6 +138,4 @@ def xml_query(soup_obj: BeautifulSoup, pdf_name: str, is_in_json: bool):
 
         metadata[idno]["paper_references"].append(metadata_references)
         
-        metadata[idno]["paper_downloaded_pdf"] = pdf_name
-
     return metadata
