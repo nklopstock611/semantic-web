@@ -1,5 +1,6 @@
 import json
 import textrazor
+import urllib
 
 credentials_path = '/home/estudiante/semantic-web/credentials.json'
 
@@ -39,33 +40,52 @@ def transform_response(response: textrazor.TextRazorResponse) -> list:
     return (entities, topics)
 
 def get_analytics_json(json_obj: dict, json_obj_id: str) -> dict:
+    trans_resp = None
     full_response = {}
     response = {}
     response["paper_id"] = json_obj_id
 
     response["paper_downloaded_pdf"] = json_obj["paper_downloaded_pdf"]
 
-    title = json_obj["paper_title"]
-    response["title"] = title
-    trans_resp = transform_response(client.analyze(title))
-    response["paper_title_data"] = {"entities": trans_resp[0], "topics": trans_resp[1]}
+    try:
+        title = json_obj["paper_title"]
+        response["paper_title"] = title if title is not None else 'N/A'
+        if title != 'N/A':
+            trans_resp = transform_response(client.analyze(title))
+        response["paper_title_data"] = {"entities": trans_resp[0], "topics": trans_resp[1]} if trans_resp is not None else None
 
-    introduction = json_obj["paper_introduction"] if "paper_introduction" in json_obj else " "
-    trans_resp = transform_response(client.analyze(introduction))
-    response["paper_introduction_data"] = {"entities": trans_resp[0], "topics": trans_resp[1]}
+        introduction = json_obj["paper_introduction"] if "paper_introduction" in json_obj else "N/A"
+#        print('GOT TITLE', type(introduction))
+        if introduction != 'N/A':
+            trans_resp = transform_response(client.analyze(introduction))
+        response["paper_introduction_data"] = {"entities": trans_resp[0], "topics": trans_resp[1]} if trans_resp is not None else None
 
-    abstract = json_obj["paper_abstract"] if "paper_abstract" in json_obj else " "
-    trans_resp = transform_response(client.analyze(abstract))
-    response["paper_abstract_data"] = {"entities": trans_resp[0], "topics": trans_resp[1]}
+        abstract = json_obj["paper_abstract"] if "paper_abstract" in json_obj else "N/A"
+#        print('GOT INTRODUCTION', type(abstract))
+        if abstract != 'N/A':
+            trans_resp = transform_response(client.analyze(abstract))
+        response["paper_abstract_data"] = {"entities": trans_resp[0], "topics": trans_resp[1]} if trans_resp is not None else None
 
-    conclusions = json_obj["paper_conclusions"] if "paper_conclusions" in json_obj else " "
-    trans_resp = transform_response(client.analyze(conclusions))
-    response["paper_conclusions_data"] = {"entities": trans_resp[0], "topics": trans_resp[1]}
+        conclusions = json_obj["paper_conclusions"] if "paper_conclusions" in json_obj else "N/A"
+#        print('GOT ABSTRACT', type(conclusions))
+        if conclusions != 'N/A':
+            trans_resp = transform_response(client.analyze(conclusions))
+        response["paper_conclusions_data"] = {"entities": trans_resp[0], "topics": trans_resp[1]} if trans_resp is not None else None
+
+#        print('GOT CONCLUSIONS') 
+
+        response["paper_publication_year"] = json_obj["paper_publication_year"] if "paper_publication_year" in json_obj else ""
+        response["paper_authors"] = json_obj["paper_authors"]
+        response["paper_references"] = json_obj["paper_references"]
+
+        full_response[json_obj_id] = response
+    except AttributeError:
+        print("ERROR: Paper with no title!?")
+    except urllib.error.HTTPError:
+        print("ERROR: HTTP 400 Code")
+    except textrazor.TextRazorAnalysisException:
+        print('ERROR: TextRazor returned HTTP Code 400')
     
-    response["paper_publication_year"] = json_obj["paper_publication_year"] if "paper_publication_year" in json_obj else ""
-    response["paper_authors"] = json_obj["paper_authors"]
-    response["paper_references"] = json_obj["paper_references"]
-
-    full_response[json_obj_id] = response
 
     return full_response
+

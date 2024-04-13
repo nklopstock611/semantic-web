@@ -17,9 +17,22 @@ def create_json(metadata: dict) -> None:
 def main():
     with open(metadata_path, 'r', encoding='utf-8') as f:
         metadata = json.load(f)
-    
+
+    starting_key = 'Managing User Focused Access to Distributed Knowledge'
+    start_processing = False 
+    count = 0
+
     for each_paper in metadata:
-        print('Extracting Metadata From', metadata[each_paper]['paper_title'])
+        count += 1
+        current_title = metadata[each_paper].get("paper_title", "")
+        if not start_processing:
+            if current_title == starting_key:
+                print(count)
+                start_processing = True
+            else:
+                continue
+
+        print('Extracting Metadata From', current_title)
         new_data = ta.get_analytics_json(metadata[each_paper], each_paper)
         print('Got Metadata!')
         # print(metadata)
