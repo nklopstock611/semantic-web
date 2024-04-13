@@ -35,38 +35,39 @@ def xml_query(soup_obj: BeautifulSoup, pdf_name: str, is_in_json: bool):
 
     {
         '<IDNO>': {
-            'title': '<title>',
-            'authors': ['<author>', '<author>', ...],
-            'publication_year': '<year>',
-            'introduction': '<introduction>',
-            'abstract': '<abstract>',
-            'conclusions': '<conclusions>',
-            'references': ['<reference>', '<reference>', ...]
+            'paper_downloaded_pdf': '<pdf_name>',
+            'paper_title': '<title>',
+            'paper_authors': ['<author>', '<author>', ...],
+            'paper_publication_year': '<year>',
+            'paper_introduction': '<introduction>',
+            'paper_abstract': '<abstract>',
+            'paper_conclusions': '<conclusions>',
+            'paper_references': ['<reference>', '<reference>', ...]
         },
     }
 
     {
         '<author_name>': {
-            'forename': '<author_name>',
-            'surname': '<author_name>',
-            'email': '<email>',
-            'affiliation': '<affiliation>',
-            'addressLine': '<address>',
-            'postCode': '<postCode>',
-            'settlement': '<settlement>',
-            'country': '<country>'
+            'paper_author_forename': '<author_name>',
+            'paper_author_surname': '<author_name>',
+            'paper_author_email': '<email>',
+            'paper_author_affiliation': '<affiliation>',
+            'paper_author_address_line': '<address>',
+            'paper_author_post_code': '<postCode>',
+            'paper_author_settlement': '<settlement>',
+            'paper_author_country': '<country>'
         }
     }
 
     {
         '<reference>': {
-            'title': '<title>',
-            'authors': ['<author>', '<author>', ...],
-            'publication_year': '<year>',
-            'meeting': '<meeting>',
-            'city': '<city>',
-            'country': '<country>',
-            'note': '<note>'
+            'reference_paper_title': '<title>',
+            'reference_paper_authors': ['<author>', '<author>', ...],
+            'reference_paper_publication_year': '<year>',
+            'reference_paper_meeting': '<meeting>',
+            'reference_paper_city': '<city>',
+            'reference_paper_country': '<country>',
+            'reference_paper_note': '<note>'
     }
     """
     metadata = {}
