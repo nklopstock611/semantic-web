@@ -1,1 +1,0 @@
-los archivos "metadata.json" y "metadata2.json" son iguales, excepto que el segundo tiene nombres de PDFs respectivos según paper.

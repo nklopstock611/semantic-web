@@ -1,3 +1,9 @@
+# ====================================== #
+# WE DO NOT USE THIS FILE! IT WAS PART OF
+# THE STARTING TEST-PHASE OF THE PROJECT.
+# WE LEFT IT HERE TO SHOW OUR PROCESS.
+# ====================================== #
+
 import time
 import pyautogui
 from selenium import webdriver

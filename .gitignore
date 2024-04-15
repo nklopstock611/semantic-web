@@ -1,9 +1,11 @@
 *.cpython-*
 
-firstTask/pdf-downloader/credentials.json
-firstTask/pdf-downloader/dict_split_2.json
+credentials.json
+first-task/pdf-downloader/dict_split_2.json
+first-task/pdf-downloader/pdfs/
 
-firstTask/pdf-analyzer/grobid_client_python
-firstTask/pdf-info-extractor/webscraper.py
+first-task/pdf-analyzer/grobid_client_python
+first-task/pdf-info-extractor/webscraper.py
 
 env/
+

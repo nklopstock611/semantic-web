@@ -1,9 +1,10 @@
 import os
 import json
-import time
 import requester as reqr
 
-def save_data_in_json(data: dict, file_path: str = 'publication_dates_2.json'):
+pdf_path = '/semantic-web/firstTask/pdf-downloader/pdfs/'
+
+def save_data_in_json(data: dict, file_path: str='publication_dates_2.json'):
     """
     Saves data in publication_dates.json file.
     """
@@ -30,7 +31,7 @@ def verify_paper_object(author_name: str, paper_name: str, paper_year: int) -> t
             if each_author:
                 papers_list = each_author['papers']
                 for each_paper in papers_list:
-                    if each_paper['title'] == paper_name: # and each_paper['year'] == paper_year:
+                    if each_paper['title'] == paper_name:
                         return each_paper['paperId']
 
     return None
@@ -42,7 +43,6 @@ def evaluate_authors(paper: dict) -> str:
     authors = paper['authors']
     if authors:
         for each_author in authors:
-            # print(f"Author: {each_author}")
             if each_author:
                 paper_name = paper['title']
                 paper_year = paper['year']
@@ -56,34 +56,24 @@ def get_pdf_link(paper: dict) -> str:
     """
     If it exists, returns the link to the pdf of the paper.
     """
-    # paper_id = evaluate_authors(paper)
-    # if paper_id:
-    #     paper_found = reqr.get_paper(paper_id)
-    #     if paper_found:
-    #         print(f"Paper: {paper_found['title']}")
-    #         print(f"PDF: {paper_found['isOpenAccess']}")
-    #         # print(f"PDF: {paper_found['openAccessPDF']}")
-    #         if paper_found['isOpenAccess'] and paper_found['openAccessPdf']:
-    #             return paper_found['openAccessPdf']['url']
-
     paper_found = reqr.find_paper(paper['title'])
-    #   print(paper_found)
     if paper_found:
         print(f"Paper: {paper_found['title']}")
         print(f"PDF: {paper_found['isOpenAccess']}")
-        # print(f"PDF: {paper_found['openAccessPDF']}")
         if paper_found['isOpenAccess'] and paper_found['openAccessPdf']:
             return paper_found['openAccessPdf']['url']
 
     return None
 
-def test_get_pdf_link(paper: dict) -> str:
-    paper_found = reqr.test(paper['title'])
-    if paper_found:
-        print(f"Paper: {paper['title']}")
-        print(f"PDF: {paper_found['outputs']['links'][0]['url']}")
-        if paper_found['outputs']['links'][0]['type'] == 'download' or paper_found['outputs']['links'][0]['url']:
-            return paper_found['links'][0]['url']
-
+def download_pdf(paper: dict) -> None:
+    """
+    Downloads the pdf of the paper.
+    """
+    pdf_link = get_pdf_link(paper)
+    if pdf_link:
+        print(f"Downloading: {pdf_link}")
+        save_data_in_json({ paper['title']: [ paper['year'], os.path.basename(pdf_link) ]})
+        with open(pdf_path + {os.path.basename(pdf_link)}, 'wb') as f:
+            f.write(reqr.get_pdf(pdf_link).content)
+    
     return None
-

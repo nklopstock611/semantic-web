@@ -1,10 +1,12 @@
 import json
 import re
-
 import scipdf
 import xml_analyzer as xmlq
 
-def verify_unique_papers(file_path: str='/home/estudiante/semantic-web/firstTask/pdf-downloader/publication_dates_2.json'):
+seen_pdfs_path = '/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
+metadata_path = '/home/estudiante/semantic-web/first-task/metadata4.json'
+
+def verify_unique_papers(file_path: str=seen_pdfs_path):
     """
     Verifies if all the papers are unique in the saved dataset.
     """
@@ -58,10 +60,10 @@ def create_csv(metadata: dict) -> None:
 
 def create_json(metadata: dict) -> None:
     for each_article in metadata:
-        with open('metadata.json', 'r') as f:
+        with open(metadata_path, 'r') as f:
             json_dict = json.load(f)
 
         json_dict.update({ each_article: metadata[each_article] })
 
-        with open('metadata.json', 'w') as f:
+        with open(metadata_path, 'w') as f:
             json.dump(json_dict, f)
