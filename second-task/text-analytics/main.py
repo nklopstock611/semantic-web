@@ -5,6 +5,9 @@ new_metadata_path = '/home/estudiante/semantic-web/second-task/metadata_keywords
 metadata_path = '/home/estudiante/semantic-web/first-task/metadata4.json'
 
 def create_json(metadata: dict) -> None:
+    """
+    Updates a json file.
+    """
     for each_article in metadata:
         with open(new_metadata_path, 'r') as f:
             json_dict = json.load(f)
@@ -18,6 +21,7 @@ def main():
     with open(metadata_path, 'r', encoding='utf-8') as f:
         metadata = json.load(f)
 
+    # if the download is interrupted, you can start from a specific paper
     starting_key = 'Managing User Focused Access to Distributed Knowledge'
     start_processing = False 
     count = 0

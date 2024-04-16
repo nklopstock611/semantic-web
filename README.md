@@ -44,7 +44,7 @@ pip install git+https://github.com/titipata/scipdf_parser
 python -m spacy download en_core_web_sm
 ```
 
-Now, we have to start the GROBID server. You can do this by running the following command:
+Now, we have to start the GROBID server. You can do this by running the following commands:
 
 ```
 cd first-task/pdf-info-extractor
