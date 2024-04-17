@@ -4,3 +4,4 @@ pyautogui
 beautifulsoup4
 lxml
 textrazor
+sklearn
