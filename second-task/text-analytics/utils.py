@@ -69,18 +69,20 @@ def normalize_scores(scores: dict, type: str) -> dict:
     elif type == 'topics':
         relevance_scores = [entry['score'] for entry in scores]
 
-    min_relevance = min(relevance_scores)
-    max_relevance = max(relevance_scores)
-    if type == 'entities':
+    if relevance_scores:
+        min_relevance = min(relevance_scores)
+        max_relevance = max(relevance_scores)
+    if type == 'entities' and confidence_scores:
         min_confidence = min(confidence_scores)
         max_confidence = max(confidence_scores)
 
-    for entry in scores:
-        if type == 'entities':
-            entry['relevance_score'] = (entry['relevance_score'] - min_relevance) / (max_relevance - min_relevance)
-            entry['confidence_score'] = (entry['confidence_score'] - min_confidence) / (max_confidence - min_confidence)
-        elif type == 'topics':
-            entry['score'] = (entry['score'] - min_relevance) / (max_relevance - min_relevance)
+    if relevance_scores:
+        for entry in scores:
+            if type == 'entities':
+                entry['relevance_score'] = (entry['relevance_score'] - min_relevance) / (max_relevance - min_relevance) if (max_relevance - min_relevance) != 0 else 0
+                entry['confidence_score'] = (entry['confidence_score'] - min_confidence) / (max_confidence - min_confidence) if (max_relevance - min_relevance) != 0 else 0
+            elif type == 'topics':
+                entry['score'] = (entry['score'] - min_relevance) / (max_relevance - min_relevance) if (max_relevance - min_relevance) != 0 else 0
 
     return scores
 
@@ -113,8 +115,9 @@ def evaluate_scores(scores: list, type: str) -> list:
     elif type == 'topics':
         relevance_scores = [entry['score'] for entry in normalized_scores]
 
-    mean_relevance = mean(relevance_scores)
-    if type == 'entities':
+    if relevance_scores:
+        mean_relevance = mean(relevance_scores)
+    if type == 'entities' and confidence_scores:
         mean_confidence = mean(confidence_scores)
     
     for entry in normalized_scores:
@@ -141,12 +144,15 @@ def scores_evaluation():
         papers_metadata = json.load(f)
 
     for each_paper in papers_metadata:
+        print('Evaluating Scores From', papers_metadata[each_paper]['paper_title'])
+
         entities = papers_metadata[each_paper]['paper_key_words']['entities']
         topics = papers_metadata[each_paper]['paper_key_words']['topics']
 
         papers_metadata[each_paper]['paper_key_words']['entities'] = evaluate_scores(entities, 'entities')
         papers_metadata[each_paper]['paper_key_words']['topics'] = evaluate_scores(topics, 'topics')
-        break
+
+    create_json(papers_metadata)
 
 if __name__ == "__main__":
     # correct_titles()
