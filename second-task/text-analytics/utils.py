@@ -1,8 +1,10 @@
+import re
 import json
 from statistics import mean
 
 metadata_path = '/workspaces/semantic-web/second-task/metadata_keywords_2.json'
 seen_pdfs_path = '/workspaces/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
+pattern = r'^[A-Za-z0-9 !@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?]*[áéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜâêîôûÂÊÎÔÛ]*$'
 
 def create_json(metadata: dict) -> None:
     """
@@ -36,6 +38,9 @@ def paper_equals(paper_one: dict, paper_two: dict) -> bool:
     """
     return (paper_one['paper_downloaded_pdf'] in paper_two), paper_one['paper_downloaded_pdf']
 
+def contains_only_accented_or_ascii(title: str):
+    return bool(re.match(pattern, title))
+
 def correct_titles():
     """
     Process to replace None titles or titles with "strange" symbols with the
@@ -47,14 +52,25 @@ def correct_titles():
     with open(seen_pdfs_path, 'r', encoding='utf-8') as f:
         seen_pdfs = json.load(f)
 
+    keys_to_remove = []
+
     for each_paper in papers_metadata:
-        print(papers_metadata[each_paper]['paper_title'])
-        transformed_seen_pdfs = transform_seen_pdfs(seen_pdfs)
-        same, pdf_file = paper_equals(papers_metadata[each_paper], transformed_seen_pdfs)
-        print(same)
-        if same:
-            papers_metadata[each_paper]['paper_title'] = transformed_seen_pdfs[pdf_file]
+        ascii = contains_only_accented_or_ascii(papers_metadata[each_paper]['paper_title'])
+        if ascii:
             print(papers_metadata[each_paper]['paper_title'])
+            transformed_seen_pdfs = transform_seen_pdfs(seen_pdfs)
+            same, pdf_file = paper_equals(papers_metadata[each_paper], transformed_seen_pdfs)
+            print(same)
+            if same:
+                papers_metadata[each_paper]['paper_title'] = transformed_seen_pdfs[pdf_file]
+                print(papers_metadata[each_paper]['paper_title'])
+        else:
+            print('Title with strange symbols:', papers_metadata[each_paper]['paper_title'])
+            keys_to_remove.append(each_paper)
+
+    # removes the papers with "strange" symbols (not ASCII except accented characters)
+    for key in keys_to_remove:
+        papers_metadata.pop(key)
 
     create_json(papers_metadata)
 
@@ -98,6 +114,20 @@ def sort_scores(scores: list, type: str) -> list:
 
     return scores
 
+def get_names(scores: list, type: str) -> list:
+    """
+    Get the names of the entities and topics.
+    """
+    names = []
+    if type == 'entities':
+        for entry in scores:
+            names.append(entry['id'])
+    elif type == 'topics':
+        for entry in scores:
+            names.append(entry['label'])
+
+    return names
+
 def evaluate_scores(scores: list, type: str) -> list:
     """
     entities:
@@ -133,7 +163,8 @@ def evaluate_scores(scores: list, type: str) -> list:
     elif type == 'topics':
         normalized_scores = sort_scores(normalized_scores, type)
 
-    return normalized_scores
+    names_list = get_names(normalized_scores, type)
+    return names_list
 
 def scores_evaluation():
     """
@@ -155,5 +186,5 @@ def scores_evaluation():
     create_json(papers_metadata)
 
 if __name__ == "__main__":
-    # correct_titles()
-    scores_evaluation()
+    correct_titles()
+    # scores_evaluation()
