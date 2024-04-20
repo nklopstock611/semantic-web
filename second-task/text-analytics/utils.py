@@ -7,6 +7,7 @@ seen_pdfs_path = '/semantic-web/first-task/pdf-downloader/publication_dates_2.js
 
 pattern = r'^[A-Za-z0-9 !@#$%^&*()_+\-=\[\]\{\};:"\\|,.<>\/?]*$'
 pattern_replace = r'[^A-Za-z0-9]'
+pattern_kewords = r'[^A-Za-z]'
 
 def create_json(metadata: dict) -> None:
     """
@@ -106,7 +107,11 @@ def replace_in() -> None:
             each_reference['reference_paper_note'] = re.sub(pattern_replace, '_', each_reference['reference_paper_note'])
 
         for each_keyword in papers_metadata[each_paper]['paper_key_words']['entities']:
-            each_keyword = re.sub(pattern_replace, '_', each_keyword)
+            if type(each_keyword) != str or re.search(r'\d', each_keyword):
+                print('EACH KEYWORD:', each_keyword)
+                papers_metadata[each_paper]['paper_key_words']['entities'].remove(each_keyword)
+            else:
+                each_keyword = re.sub(pattern_replace, '_', each_keyword)
 
     # removes the papers with empty titles
     try:
@@ -262,7 +267,10 @@ def scores_evaluation() -> None:
     create_json(papers_metadata)
 
 if __name__ == "__main__":
-    delete_specific_papers(['F5F0EECA59C37FD5B4CBBAA386A759D8',
+    delete_specific_papers([
+                            '2C126818AC116F9229A1B6F1705FF56F',
+                            'A1D7BC7612D1AE54F075431D0521C87C',
+                            'F5F0EECA59C37FD5B4CBBAA386A759D8',
                             'A17BCC590445D275508799CE4CFF45D4',
                             '97EBC19FDB76FAC13FC665366529CAE5',
                             '9DB8F5ED3A070C46E65DEFADC098484A',
@@ -273,5 +281,5 @@ if __name__ == "__main__":
                             'E18DA4CF2B1BE338072B0F2CC5D0C853'
     ])
     correct_titles()
-    replace_in()
     scores_evaluation()
+    replace_in()
