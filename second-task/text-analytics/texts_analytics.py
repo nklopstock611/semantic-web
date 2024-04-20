@@ -2,7 +2,7 @@ import json
 import textrazor
 import urllib
 
-credentials_path = '/home/estudiante/semantic-web/credentials.json'
+credentials_path = '/semantic-web/credentials.json'
 
 with open(credentials_path, "r") as f:
     json_obj = json.load(f)

@@ -2,9 +2,11 @@ import re
 import json
 from statistics import mean
 
-metadata_path = '/workspaces/semantic-web/second-task/metadata_keywords_2.json'
-seen_pdfs_path = '/workspaces/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
-pattern = r'^[A-Za-z0-9 !@#$%^&*()_+\-=\[\]{};:"\\|,.<>\/?]*[áéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜâêîôûÂÊÎÔÛ]*$'
+metadata_path = '/semantic-web/second-task/metadata_keywords_2.json'
+seen_pdfs_path = '/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
+
+pattern = r'^[A-Za-z0-9 !@#$%^&*()_+\-=\[\]\{\};:"\\|,.<>\/?]*$'
+pattern_replace = r'[^A-Za-z0-9]'
 
 def create_json(metadata: dict) -> None:
     """
@@ -18,6 +20,25 @@ def create_json(metadata: dict) -> None:
 
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f)
+
+def delete_specific_papers(papers: list) -> None:
+    """
+    Process to delete specific papers from the metadata.
+    There are some examples of papers with references that do not make sense:
+    Example: "reference_paper_country": " pages 1{17"
+    We need to remove these papers from the metadata.
+    """
+    with open(metadata_path, 'r', encoding='utf-8') as f:
+        papers_metadata = json.load(f)
+
+    for each_paper in papers:
+        try:
+            print('DELETING:', papers_metadata[each_paper]['paper_title'])
+            papers_metadata.pop(each_paper)
+        except KeyError:
+            print('Key not found in dictionary')
+
+    create_json(papers_metadata)
 
 def transform_seen_pdfs(data_dict: dict) -> dict:
     """
@@ -38,10 +59,65 @@ def paper_equals(paper_one: dict, paper_two: dict) -> bool:
     """
     return (paper_one['paper_downloaded_pdf'] in paper_two), paper_one['paper_downloaded_pdf']
 
-def contains_only_accented_or_ascii(title: str):
+def contains_only_accented_or_ascii(title: str) -> bool:
     return bool(re.match(pattern, title))
 
-def correct_titles():
+def replace_in() -> None:
+    """
+    Process to replace some characters like whitespaces or other symbols.
+    """
+    with open(metadata_path, 'r', encoding='utf-8') as f:
+        papers_metadata = json.load(f)
+
+    keys_to_remove = []
+
+    for each_paper in papers_metadata:
+        papers_metadata[each_paper]['paper_title'] = re.sub(pattern_replace, '_', papers_metadata[each_paper]['paper_title'])
+        print('REPLACING', papers_metadata[each_paper]['paper_title'])
+        if papers_metadata[each_paper]['paper_title'] == '':
+            keys_to_remove.append(each_paper)
+
+        papers_metadata[each_paper]['paper_introduction'] = re.sub(pattern_replace, '_', papers_metadata[each_paper]['paper_introduction'])
+        papers_metadata[each_paper]['paper_abstract'] = re.sub(pattern_replace, '_', papers_metadata[each_paper]['paper_abstract'])
+        papers_metadata[each_paper]['paper_conclusions'] = re.sub(pattern_replace, '_', papers_metadata[each_paper]['paper_conclusions'])
+
+        for each_author in papers_metadata[each_paper]['paper_authors']:
+            each_author['paper_author_forename'] = re.sub(pattern_replace, '_', each_author['paper_author_forename'])
+            each_author['paper_author_surname'] = re.sub(pattern_replace, '_', each_author['paper_author_surname'])
+            each_author['paper_author_affiliation'] = re.sub(pattern_replace, '_', each_author['paper_author_affiliation'])
+            each_author['paper_author_address_line'] = re.sub(pattern_replace, '_', each_author['paper_author_address_line'])
+            each_author['paper_author_post_code'] = re.sub(pattern_replace, '_', each_author['paper_author_post_code'])
+            each_author['paper_author_settlement'] = re.sub(pattern_replace, '_', each_author['paper_author_settlement'])
+            each_author['paper_author_country'] = re.sub(pattern_replace, '_', each_author['paper_author_country'])
+
+        for each_reference in papers_metadata[each_paper]['paper_references']:
+            each_reference['reference_paper_title'] = re.sub(pattern_replace, '_', each_reference['reference_paper_title'])
+            print('REPLACING', each_reference['reference_paper_title'])
+            if each_reference['reference_paper_title'] == '':
+                keys_to_remove.append(each_paper)
+
+            for each_author in each_reference['reference_paper_authors']:
+                each_author['reference_paper_author_forename'] = re.sub(pattern_replace, '_', each_author['reference_paper_author_forename'])
+                each_author['reference_paper_author_surname'] = re.sub(pattern_replace, '_', each_author['reference_paper_author_surname'])
+
+            each_reference['reference_paper_city'] = re.sub(pattern_replace, '_', each_reference['reference_paper_city'])
+            each_reference['reference_paper_country'] = re.sub(pattern_replace, '_', each_reference['reference_paper_country'])
+            each_reference['reference_paper_meeting'] = re.sub(pattern_replace, '_', each_reference['reference_paper_meeting'])
+            each_reference['reference_paper_note'] = re.sub(pattern_replace, '_', each_reference['reference_paper_note'])
+
+        for each_keyword in papers_metadata[each_paper]['paper_key_words']['entities']:
+            each_keyword = re.sub(pattern_replace, '_', each_keyword)
+
+    # removes the papers with empty titles
+    try:
+        for key in keys_to_remove:
+            papers_metadata.pop(key)
+    except KeyError:
+        print('Key not found in dictionary')
+
+    create_json(papers_metadata)        
+
+def correct_titles() -> None:
     """
     Process to replace None titles or titles with "strange" symbols with the
     actual title.
@@ -166,7 +242,7 @@ def evaluate_scores(scores: list, type: str) -> list:
     names_list = get_names(normalized_scores, type)
     return names_list
 
-def scores_evaluation():
+def scores_evaluation() -> None:
     """
     Process to evaluate each score of each entity in a given TextRazor response.
     Remove the entities that do not match the defined parameters.
@@ -186,5 +262,16 @@ def scores_evaluation():
     create_json(papers_metadata)
 
 if __name__ == "__main__":
+    delete_specific_papers(['F5F0EECA59C37FD5B4CBBAA386A759D8',
+                            'A17BCC590445D275508799CE4CFF45D4',
+                            '97EBC19FDB76FAC13FC665366529CAE5',
+                            '9DB8F5ED3A070C46E65DEFADC098484A',
+                            '92E6E63A8B6FEF1361F1015BF50A253F',
+                            '176B0BCE26DB2F2BE3B4F462E1B937B7',
+                            '881C2D9AAB190A909FF6A90ED51858E2',
+                            'D2DCBFBC986D62AAD9B95B7416C9842D',
+                            'E18DA4CF2B1BE338072B0F2CC5D0C853'
+    ])
     correct_titles()
-    # scores_evaluation()
+    replace_in()
+    scores_evaluation()
