@@ -107,3 +107,5 @@ python utils.py
 Lastly, we have to model all the classes and properties to fully duplicate the natural rules of the metadata we collected.
 
 You can find the ontology RDF file in `/semantic-web/second-task/rdf-model/rdf_definition.ipynb`. In that file, you'll find the ontology model, the instances and some SPARQL and CYPHER (neo4j) queries. We recommend to download the RDF files (`/semantic-web/second-task/rdf-model/rdf-files`) and not no fully execute the Notebook. This, because the OWL inference closure function after loading the instances can take 60 minutes to finish.
+
+In the `/semantic-web/second-task/rdf-model/semantic_instances_only.txt` file there's a link to a Google Drive folder. There, you'll the find JSON with all the metadata, both .rdf files (ontology and instances) and the neo4j database dump.
