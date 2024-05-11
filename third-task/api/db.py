@@ -22,7 +22,7 @@ def get_pdfs_from_keyword(keyword: str, limit: str ='10') -> List[str]:
         with db as session:
             result = session.run(query, keyword_uri=f"http://www.uniandes.web.semantica.example.org/{keyword}", limit=limit)
             for record in result:
-                nodes.append(record['pUri'])
+                nodes.append(record['pUri'].replace('http://www.uniandes.web.semantica.example.org/', ''))
     finally:
         db.close()
 
