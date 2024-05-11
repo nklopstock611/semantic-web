@@ -1,0 +1,125 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix uev: <http://www.uniandes.web.semantica.ejemplo.org/voca#> .
+@prefix ues: <http://www.uniandes.web.semantica.ejemplo.org/shape#> .
+
+ues:AuthorShape
+  a sh:NodeShape ;
+  sh:targetClass uev:Author ;
+  sh:property [
+      sh:path uev:Forename ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Surname ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] .
+  sh:property [
+      sh:path uev:Email ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Afilliation ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Address_Line ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Post_Code ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Settlement ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:hasCountry ;
+      sh:node uev:Country ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:isAUthorOf ;
+      sh:node uev:Paper ;
+      sh:minCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:isAUthorOf ;
+      sh:node uev:Reference ;
+      sh:minCount 1 ;
+    ] .
+
+uev:PaperShape
+    a sh:NodeShape ;
+    sh:targetClass uev:Paper ;
+    sh:property [
+        sh:path uev:Title ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path uev:Text ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path uev:Abstract ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path uev:Conclusion ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path uev:Paper_pdf ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path uev:Publication_Date ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path uev:hasReference ;
+        sh:node uev:Reference ;
+    ] ;
+    sh:property [
+        sh:path uev:hasConcept_Annotation ;
+        sh:node uev:ConceptAnnotation ;
+    ] .
+
+uev:ReferenceShape
+    a sh:NodeShape ;
+    sh:targetClass uev:Reference ;
+    sh:property [
+        sh:path uev:Note ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path uev:hasCity ;
+        sh:node uev:City ;
+        sh:maxCount 1 ;
+    ] ;
+    sh:property [
+        sh:path uev:hasMeeting ;
+        sh:node uev:Meeting ;
+        sh:maxCount 1 ;
+    ] .
+
+
+
