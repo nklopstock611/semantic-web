@@ -6,3 +6,4 @@ lxml
 textrazor
 rdflib
 fastapi
+neo4j
