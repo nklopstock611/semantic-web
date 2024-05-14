@@ -2,6 +2,10 @@ from fastapi import FastAPI
 import db
 
 app = FastAPI()
+<<<<<<< HEAD
+=======
+# fastapi dev main.py
+>>>>>>> 34abe46 (db y eso)
 
 @app.get('/')
 def home():
