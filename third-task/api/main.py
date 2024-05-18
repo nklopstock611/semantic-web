@@ -16,7 +16,6 @@ app.add_middleware(
     allow_headers=["*"],  # Permitir todos los headers
 )
 
-
 @app.get('/')
 def home():
     return {'hello, world!'}
@@ -41,8 +40,7 @@ async def add_pdf(file: UploadFile = File(...)):
 @app.post('/insert_data')
 async def insert_data(data: dict):
     try:
-        # db.insert_data(data)
-        print('Data:', data)
+        db.insert_data(data)
         # return JSONResponse(content={"message": "Data inserted successfully."})
     except Exception as e:
         print(f"Error: {str(e)}")
