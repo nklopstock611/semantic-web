@@ -1,6 +1,7 @@
 import db
 import pdf_processor as pp
 
+import json
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +26,11 @@ def get_pdfs_from_keyword(keyword: str):
     pdfs = db.get_pdfs_from_keyword(keyword)
     return pdfs
 
+@app.get('/by_paper/{paper}')
+def get_authors_from_paper(paper: str):
+    authors = db.get_authors_from_paper(paper)
+    return authors
+
 @app.post('/add_pdf')
 async def add_pdf(file: UploadFile = File(...)):
     try:
@@ -40,8 +46,11 @@ async def add_pdf(file: UploadFile = File(...)):
 @app.post('/insert_data')
 async def insert_data(data: dict):
     try:
-        db.insert_data(data)
-        # return JSONResponse(content={"message": "Data inserted successfully."})
+        success = db.insert_triple(data)
+        if success:
+            return JSONResponse(content={"message": "Data inserted successfully"}, status_code=200)
+        else:
+            raise ValueError("Failed to insert data due to validation failure or other non-exceptional issue.")
     except Exception as e:
         print(f"Error: {str(e)}")
         return JSONResponse(content={"error": str(e)}, status_code=500)
@@ -57,8 +66,9 @@ Pasos:
   espacio de intefaz gráfica (CHECK)
 - Dejar al usuario poder ver lo que sacó GROBID
   y poder corregirlo si desea (CHECK)
-- Cuando esté listo, se crea el grafo con la información
-- Se verifica con los Shapes
+- Cuando esté listo, se crea el grafo con la información (CHECK)
+- Se verifica con los Shapes (CHECK)
     - En caso de que pase todo correctamente, se guardan las tuplas
         - Se muestra un mensaje de éxito
+    - En caso de que falle, se muestra un mensaje de error (CHECK)
 """

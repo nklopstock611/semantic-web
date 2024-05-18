@@ -62,6 +62,9 @@ async function uploadFile(file) {
         const response = await axios.post(url, formData);
         currentMetadata = response.data[Object.keys(response.data)[0]];
 
+        currentMetadata.idno = Object.keys(response.data)[0]
+        currentMetadata.paper_downloaded_pdf = response.data[Object.keys(response.data)[0]].paper_downloaded_pdf
+
         console.log('Success:', response.data);
         displayResult(response.data);
     } catch (error) {
@@ -84,7 +87,7 @@ function displayResult(data) {
         <h3>Título</h3>
         <input id="paperTitle" type="text" value="${paper.paper_title}">
         <h3>Fecha de Publicación</h3>
-        <input id="publicationDate" type="text" placeholder="Introduce la fecha de publicación del paper (formato DD-MM-YYYY)" value="${paper.paper_publication_date ? paper.paper_publication_date : ''}">
+        <input id="publicationDate" type="text" placeholder="Introduce la fecha de publicación del paper (formato YYYY-MM-DD)" value="${paper.paper_publication_date ? paper.paper_publication_date : ''}">
         <h3>Introducción</h3>
         <textarea id="paperIntroduction" placeholder="Introduce una introducción del paper...">${paper.paper_introduction ? paper.paper_introduction : ''}</textarea>
         <h3>Abstract</h3>
@@ -136,23 +139,26 @@ submitBtn.addEventListener('click', async () => {
     try {
         console.log('Enviando información al servidor...');
         const payload = {
-            paper_title: document.getElementById('paperTitle').value,
-            paper_publication_date: document.getElementById('publicationDate').value,
-            paper_introduction: document.getElementById('paperIntroduction').value,
-            paper_abstract: document.getElementById('paperAbstract').value,
-            paper_conclusions: document.getElementById('paperConclusions').value,
-            paper_keywords: document.getElementById('paperKeywords').value,
-            paper_authors: Array.from(document.querySelectorAll('.author-section')).map((section, index) => ({
-                paper_author_forename: document.getElementById(`authorForename${index + 1}`).value,
-                paper_author_surname: document.getElementById(`authorSurname${index + 1}`).value,
-                paper_author_email: document.getElementById(`authorEmail${index + 1}`).value,
-                paper_author_affiliation: document.getElementById(`authorAffiliation${index + 1}`).value,
-                paper_author_address: document.getElementById(`authorAddress${index + 1}`).value,
-                paper_author_post_Code: document.getElementById(`authorPostCode${index + 1}`).value,
-                paper_author_city: document.getElementById(`authorCity${index + 1}`).value,
-                paper_author_country: document.getElementById(`authorCountry${index + 1}`).value
-            })),
-            paper_references: currentMetadata.paper_references // Asume que 'currentMetadata' tiene los datos correctos
+            [currentMetadata.idno]: {
+                paper_title: document.getElementById('paperTitle').value,
+                paper_publication_date: document.getElementById('publicationDate').value,
+                paper_introduction: document.getElementById('paperIntroduction').value,
+                paper_abstract: document.getElementById('paperAbstract').value,
+                paper_conclusions: document.getElementById('paperConclusions').value,
+                paper_keywords: document.getElementById('paperKeywords').value,
+                paper_downloaded_pdf: currentMetadata.paper_downloaded_pdf,
+                paper_authors: Array.from(document.querySelectorAll('.author-section')).map((section, index) => ({
+                    paper_author_forename: document.getElementById(`authorForename${index + 1}`).value,
+                    paper_author_surname: document.getElementById(`authorSurname${index + 1}`).value,
+                    paper_author_email: document.getElementById(`authorEmail${index + 1}`).value,
+                    paper_author_affiliation: document.getElementById(`authorAffiliation${index + 1}`).value,
+                    paper_author_address: document.getElementById(`authorAddress${index + 1}`).value,
+                    paper_author_post_Code: document.getElementById(`authorPostCode${index + 1}`).value,
+                    paper_author_city: document.getElementById(`authorCity${index + 1}`).value,
+                    paper_author_country: document.getElementById(`authorCountry${index + 1}`).value
+                })),
+                paper_references: currentMetadata.paper_references // Asume que 'currentMetadata' tiene los datos correctos
+            }
         };
 
         const response = await axios.post('http://localhost:8000/insert_data', payload);

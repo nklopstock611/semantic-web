@@ -3,60 +3,6 @@
 @prefix uev: <http://www.uniandes.web.semantica.ejemplo.org/voca#> .
 @prefix ues: <http://www.uniandes.web.semantica.ejemplo.org/shape#> .
 
-ues:AuthorShape
-  a sh:NodeShape ;
-  sh:targetClass uev:Author ;
-  sh:property [
-      sh:path uev:Forename ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-    ] ;
-  sh:property [
-      sh:path uev:Surname ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-    ] .
-  sh:property [
-      sh:path uev:Email ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-    ] ;
-  sh:property [
-      sh:path uev:Afilliation ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-    ] ;
-  sh:property [
-      sh:path uev:Address_Line ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-    ] ;
-  sh:property [
-      sh:path uev:Post_Code ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-    ] ;
-  sh:property [
-      sh:path uev:Settlement ;
-      sh:datatype xsd:string ;
-      sh:maxCount 1 ;
-    ] ;
-  sh:property [
-      sh:path uev:hasCountry ;
-      sh:node uev:Country ;
-      sh:maxCount 1 ;
-    ] ;
-  sh:property [
-      sh:path uev:isAUthorOf ;
-      sh:node uev:Paper ;
-      sh:minCount 1 ;
-    ] ;
-  sh:property [
-      sh:path uev:isAUthorOf ;
-      sh:node uev:Reference ;
-      sh:minCount 1 ;
-    ] .
-
 uev:PaperShape
     a sh:NodeShape ;
     sh:targetClass uev:Paper ;
@@ -67,7 +13,7 @@ uev:PaperShape
         sh:maxCount 1 ;
     ] ;
     sh:property [
-        sh:path uev:Text ;
+        sh:path uev:Introduction ;
         sh:datatype xsd:string ;
         sh:maxCount 1 ;
     ] ;
@@ -89,7 +35,7 @@ uev:PaperShape
     ] ;
     sh:property [
         sh:path uev:Publication_Date ;
-        sh:datatype xsd:string ;
+        sh:datatype xsd:date ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
     ] ;
@@ -121,5 +67,56 @@ uev:ReferenceShape
         sh:maxCount 1 ;
     ] .
 
-
-
+ues:AuthorShape
+  a sh:NodeShape ;
+  sh:targetClass uev:Author ;
+  sh:property [
+      sh:path uev:Forename ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Surname ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Email ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Afilliation ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Address_Line ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Post_Code ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:Settlement ;
+      sh:datatype xsd:string ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:hasCountry ;
+      sh:node uev:Country ;
+      sh:maxCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:isAuthorOf ;
+      sh:node uev:Paper ;
+      sh:minCount 1 ;
+    ] ;
+  sh:property [
+      sh:path uev:isAuthorOf ;
+      sh:node uev:Reference ;
+      sh:minCount 1 ;
+    ] .
