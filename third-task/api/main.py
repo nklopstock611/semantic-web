@@ -38,17 +38,27 @@ async def add_pdf(file: UploadFile = File(...)):
         print(f"Error: {str(e)}")
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
+@app.post('/insert_data')
+async def insert_data(data: dict):
+    try:
+        # db.insert_data(data)
+        print('Data:', data)
+        # return JSONResponse(content={"message": "Data inserted successfully."})
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
 """
 Pasos:
 - Definir Shapes (CHECK)
 - Recibir el PDF (CHECK)
-- Guardar el PDF
+- Guardar el PDF (MÁS O MENOS... SE GUARDA LOCAL PERO NO EN DRIVE NI NADA...)
 - Pasarlo por GROBID (CHECK)
-- Sacar la metadata en un JSON por cada solicitud
+- Sacar la metadata en un JSON por cada solicitud (CHECK)
 - Mostrar el resultado que saca GROBID en un
-  espacio de intefaz
+  espacio de intefaz gráfica (CHECK)
 - Dejar al usuario poder ver lo que sacó GROBID
-  y poder corregirlo si desea
+  y poder corregirlo si desea (CHECK)
 - Cuando esté listo, se crea el grafo con la información
 - Se verifica con los Shapes
     - En caso de que pase todo correctamente, se guardan las tuplas

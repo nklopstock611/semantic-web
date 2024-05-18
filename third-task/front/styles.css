@@ -71,4 +71,16 @@ input {
     margin-bottom: 10px; /* Espacio entre los inputs */
 }
 
+textarea {
+    resize: vertical;  /* Permite que el textarea solo se expanda verticalmente */
+    max-width: 99%;  /* Máxima anchura del textarea (esto solo importa si cambias a resize: both) */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center; /* Centra el contenido horizontalmente */
+    align-items: center; /* Centra el contenido verticalmente (opcional si necesitas centrado vertical) */
+    height: 100%; /* Ajusta según la necesidad de tu diseño */
+}
+
 
