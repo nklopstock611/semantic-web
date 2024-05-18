@@ -80,8 +80,19 @@ function displayResult(data) {
     const titleSection = document.createElement('div');
     titleSection.className = 'result-section';
     titleSection.innerHTML = `
-        <h3>Título del Paper</h3>
+        <h3>Título</h3>
         <input type="text" value="${paper.paper_title}">
+        <h3>Fecha de Publicación</h3>
+        <input type="text" placeholder="Introduce una introducción del paper..." value="${paper.paper_publication_date ? paper.paper_publication_date : ''}">
+        <h3>Introducción</h3>
+        <textarea placeholder="Introduce una introducción del paper...">${paper.paper_introduction ? paper.paper_introduction : ''}</textarea>
+        <h3>Abstract</h3>
+        <textarea>${paper.paper_abstract}</textarea>
+        <h3>Conclusiones</h3>
+        <textarea placeholder="Introduce una conclusión del paper...">${paper.paper_conclusions ? paper.paper_conclusions : ''}</textarea>
+        <h3>Keywords</h3>
+        <input type="text" placeholder="Introduce palabras clave del paper (separadas por ',')" value="${paper.paper_keywords ? paper.paper_keywords : ''}">
+
     `;
     resultDiv.appendChild(titleSection);
 
@@ -102,7 +113,7 @@ function displayResult(data) {
             <h4>Autor ${authorCount}</h4>
             <input type="text" placeholder="Nombre" value="${authorData.paper_author_forename}">
             <input type="text" placeholder="Apellido" value="${authorData.paper_author_surname}">
-            <input type="email" placeholder="Email" value="${authorData.paper_author_email}">
+            <input type="text" placeholder="Email" value="${authorData.paper_author_email}">
             <input type="text" placeholder="Afiliación" value="${authorData.paper_author_affiliation}">
         `;
 

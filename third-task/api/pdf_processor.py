@@ -96,6 +96,8 @@ def xml_query(soup_obj: BeautifulSoup, pdf_name: str):
     conclusion = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')]
     if conclusion:
         metadata[idno]["paper_conclusions"] = conclusion[0]
+        
+    metadata[idno]["paper_publication_date"] = (soup_obj.find('date').text).replace(';', ',') if soup_obj.find('date') else ''
 
     metadata[idno]["paper_references"] = []
     for each_reference in soup_obj.find_all('biblstruct'):
