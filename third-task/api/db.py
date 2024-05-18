@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 from typing import List
 from neo4j import GraphDatabase
 
 url = "bolt://localhost:7687/neo4j"
+=======
+from neo4j import GraphDatabase
+
+url = "bolt://localhost:7687"
+>>>>>>> 34abe46 (db y eso)
 username = "neo4j"
 password = "neo4j"
 
@@ -14,6 +20,7 @@ def get_db():
         print("Error connecting to Neo4j:", e)
         raise
 
+<<<<<<< HEAD
 def get_pdfs_from_keyword(keyword: str, limit: str ='10') -> List[str]:
     db = get_db()
     query = 'MATCH (p:ns0__Paper)-[:ns0__hasConcept_Annotation]->(c:ns0__ConceptAnnotation {uri: "http://www.uniandes.web.semantica.example.org/' + keyword + '"}) RETURN p.uri as pUri LIMIT ' + limit
@@ -27,3 +34,15 @@ def get_pdfs_from_keyword(keyword: str, limit: str ='10') -> List[str]:
         db.close()
 
     return nodes
+=======
+def get_pdfs_from_keyword(keyword: str, limit: str ='10'):
+    db = get_db()
+    query = 'MATCH (p:ns0__Paper)-[:ns0__hasConcept_Annotation]->(c:ns0__ConceptAnnotation {uri: "http://www.uniandes.web.semantica.example.org/' + keyword + '}) RETURN p.uri as pUri LIMIT' + limit
+    nodes = []
+    with db as session:
+        result = session.run(query)
+        for record in result:
+            nodes.append(record['pUri'])
+
+    return jsonify(nodes)
+>>>>>>> 34abe46 (db y eso)

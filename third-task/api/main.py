@@ -6,6 +6,10 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+<<<<<<< HEAD
+=======
+# fastapi dev main.py
+>>>>>>> 34abe46 (db y eso)
 
 # Habilitar CORS
 app.add_middleware(
