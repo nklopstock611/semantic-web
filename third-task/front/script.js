@@ -100,22 +100,27 @@ function displayResult(data) {
     authorsSection.className = 'result-section';
     authorsSection.innerHTML = '<h3>Autores del Paper</h3>';
 
-    let authorCount = 0; 
+    let authorCount = 1; // Inicia un contador para numerar a los autores
     paper.paper_authors.forEach(author => {
         const authorDiv = document.createElement('div');
         authorDiv.className = 'author-section';
         authorDiv.innerHTML = `
-            <h4>Autor ${++authorCount}</h4>
-            <input id="authorForename${authorCount}" type="text" placeholder="Nombre" value="${author.paper_author_forename}">
-            <input id="authorSurname${authorCount}" type="text" placeholder="Apellido" value="${author.paper_author_surname}">
-            <input id="authorEmail${authorCount}" type="text" placeholder="Email" value="${author.paper_author_email}">
-            <input id="authorAffiliation${authorCount}" type="text" placeholder="Afiliación" value="${author.paper_author_affiliation}">
-            <input id="authorAddress${authorCount}" type="text" placeholder="Dirección" value="${author.paper_author_address_line}">
-            <input id="authorPostCode${authorCount}" type="text" placeholder="Código Postal" value="${author.paper_author_post_code}">
-            <input id="authorCity${authorCount}" type="text" placeholder="Ciudad" value="${author.paper_author_settlement}">
-            <input id="authorCountry${authorCount}" type="text" placeholder="País" value="${author.paper_author_country}">
+            <h4>Autor ${authorCount}</h4>
+            <div class="name-section">
+                <input id="authorForename${authorCount}" type="text" placeholder="Nombre" value="${author.paper_author_forename}">
+                <input id="authorSurname${authorCount}" type="text" placeholder="Apellido" value="${author.paper_author_surname}">
+                <input id="authorEmail${authorCount}" type="text" placeholder="Email" value="${author.paper_author_email}">
+                <input id="authorAffiliation${authorCount}" type="text" placeholder="Afiliación" value="${author.paper_author_affiliation}">
+            </div>
+            <div class="address-section">
+                <input id="authorAddress${authorCount}" type="text" placeholder="Dirección" value="${author.paper_author_address_line}">
+                <input id="authorPostCode${authorCount}" type="text" placeholder="Código Postal" value="${author.paper_author_post_code}">
+                <input id="authorCity${authorCount}" type="text" placeholder="Ciudad" value="${author.paper_author_settlement}">
+                <input id="authorCountry${authorCount}" type="text" placeholder="País" value="${author.paper_author_country}">
+            </div>
         `;
         authorsSection.appendChild(authorDiv);
+        authorCount++;
     });
     resultDiv.appendChild(authorsSection);
 
