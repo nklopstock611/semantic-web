@@ -113,6 +113,7 @@ In the `/semantic-web/second-task/rdf-model/semantic_instances_only.txt` file th
 # DRAFT
 Para correr el front:
 ```
+npm install
 cd third-task/front
 npm start
 ```

@@ -1,4 +1,6 @@
 import shapes as shs
+
+import logging
 from typing import List
 from neo4j import GraphDatabase
 
@@ -14,23 +16,6 @@ def get_db():
     except Exception as e:
         print("Error connecting to Neo4j:", e)
         raise
-
-def get_pdfs_from_keyword(keyword: str, limit: str='10') -> List[str]:
-    """
-    Query that gets papers related to a keyword.
-    """
-    db = get_db()
-    query = 'MATCH (p:ns0__Paper)-[:ns0__hasConcept_Annotation]->(c:ns0__ConceptAnnotation {uri: "http://www.uniandes.web.semantica.example.org/' + keyword + '"}) RETURN p.uri as pUri LIMIT ' + limit
-    nodes = []
-    try:
-        with db as session:
-            result = session.run(query, keyword_uri=f"http://www.uniandes.web.semantica.example.org/{keyword}", limit=limit)
-            for record in result:
-                nodes.append(record['pUri'].replace('http://www.uniandes.web.semantica.example.org/', ''))
-    finally:
-        db.close()
-
-    return nodes
 
 def get_authors_from_paper(paper: str) -> List[str]:
     """
@@ -49,6 +34,76 @@ def get_authors_from_paper(paper: str) -> List[str]:
         
     return nodes
 
+def get_pdfs_from_keyword(keyword: str, limit: str='10') -> List[str]:
+    """
+    Query that gets papers related to a keyword.
+    """
+    db = get_db()
+    query = 'MATCH (p:ns0__Paper)-[:ns0__hasConcept_Annotation]->(c:ns0__ConceptAnnotation {uri: $keyword_uri}) RETURN p.uri as pUri LIMIT ' + limit
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query, keyword_uri=f"http://www.uniandes.web.semantica.example.org/{keyword}", limit=limit)
+            for record in result:
+                nodes.append(record['pUri'].replace('http://www.uniandes.web.semantica.example.org/', ''))
+    finally:
+        db.close()
+
+    return nodes
+
+def get_recommendation_for_given_paper(paper: str) -> List[str]:
+    """
+    Query that gets recommendations for a given paper.
+    """
+    query = """
+    MATCH (p:ns0__Paper {uri: $paper_uri})-[:ns0__hasConcept_Annotation]->(k:ns0__ConceptAnnotation)
+    WITH p, collect(k) AS keywords
+
+    MATCH (k:ns0__ConceptAnnotation)<-[:ns0__hasConcept_Annotation]-(otherPaper:ns0__Paper)
+    WHERE k IN keywords AND otherPaper <> p
+
+    WITH otherPaper, collect(k) as sharedKeywordsName, COUNT(k) AS sharedKeywords
+    ORDER BY sharedKeywords DESC
+
+    RETURN otherPaper.ns0__Title AS paper, sharedKeywords, sharedKeywordsName LIMIT 10
+    """
+    db = get_db()
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query, paper_uri=f"http://www.uniandes.web.semantica.example.org/{paper}")
+            for record in result:
+                nodes.append({
+                    'paper': record['paper'],
+                    'sharedKeywordsCount': record['sharedKeywords'],
+                    'sharedKeywordNames': record['sharedKeywordsName']
+                })
+    finally:
+        db.close()
+
+    return nodes
+
+def get_papers_by_author(author: str) -> List[str]:
+    """
+    Query that gets papers by author.
+    """
+    query = """
+    MATCH (a:ns0__Author {uri: $author_uri})-[:ns0__isAuthorOf]->(p)
+    WHERE p:ns0__Paper OR p:ns0__Reference
+    RETURN p.ns0__Title AS paper
+    """
+    db = get_db()
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query, author_uri=f"http://www.uniandes.web.semantica.example.org/{author}")
+            for record in result:
+                nodes.append(record['paper'])
+    finally:
+        db.close()
+
+    return nodes
+
 def load_rdf_to_neo4j(rdf_data, rdf_format='RDF/XML'):
     """
     Función para cargar RDF en Neo4j usando neosemantics mediante la librería neo4j.
@@ -61,8 +116,6 @@ def load_rdf_to_neo4j(rdf_data, rdf_format='RDF/XML'):
     """
     with db as session:
         session.run(cypher_query, rdf_data=serialized, rdf_format=rdf_format)
-
-import logging
 
 def insert_triple(data: dict) -> bool:
     try:

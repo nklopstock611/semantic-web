@@ -31,6 +31,16 @@ def get_authors_from_paper(paper: str):
     authors = db.get_authors_from_paper(paper)
     return authors
 
+@app.get('/recommendations/{paper}')
+def get_recommendation_for_given_paper(paper: str):
+    recommendations = db.get_recommendation_for_given_paper(paper)
+    return recommendations
+
+@app.get('/by_author/{author}')
+def get_papers_by_author(author: str):
+    papers = db.get_papers_by_author(author)
+    return papers
+
 @app.post('/add_pdf')
 async def add_pdf(file: UploadFile = File(...)):
     try:
@@ -69,6 +79,19 @@ Pasos:
 - Cuando esté listo, se crea el grafo con la información (CHECK)
 - Se verifica con los Shapes (CHECK)
     - En caso de que pase todo correctamente, se guardan las tuplas
-        - Se muestra un mensaje de éxito
+        - Se muestra un mensaje de éxito (CHECK)
     - En caso de que falle, se muestra un mensaje de error (CHECK)
+    
+CONSULTAS:
+- Papers de un mismo autor
+- Papers que comparten keywords:
+    - ver los keywords de un paper dado
+    - ver los papers que comparten keywords
+    - mostrar solo los que comparten más keywords
+- Información de un paper dado
+    - Título
+    - Año de publicación
+    - Abstract
+    - Autores (juntando nombre y apellido)
+    - Botón para descargar el PDF
 """
