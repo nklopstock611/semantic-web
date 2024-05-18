@@ -1,10 +1,33 @@
 import re
-import json
+import os
+import uuid
+import scipdf
 import random
 from bs4 import BeautifulSoup
 
 pattern = re.compile(r'\[.*?\]')
-seen_pdfs_path = '/home/estudiante/semantic-web/first-task/pdf-downloader/publication_dates_2.json'
+
+def sanitize_filename(filename):
+    return "".join([c for c in filename if c.isalpha() or c.isdigit() or c in (' ', '.', '_', '-')]).rstrip()
+
+async def parse_pdf(file):
+    """
+    Parses a PDF file and returns the XML representation.
+    """
+    # temp_filename = f"{uuid.uuid4()}.pdf"
+    original_filename = sanitize_filename(file.filename)
+    temp_filepath = f"./temp_files/{original_filename}"
+
+    # Crear directorio temporal si no existe
+    os.makedirs(os.path.dirname(temp_filepath), exist_ok=True)
+    with open(temp_filepath, "wb") as buffer:
+        buffer.write(await file.read())
+    
+    xml = scipdf.parse_pdf(temp_filepath, soup=True)
+
+    # os.remove(temp_filepath) # ¿? ¿? ¿? ¿? ¿será?
+
+    return xml
 
 def get_meeting_address(string: str) -> tuple:
     """
@@ -29,63 +52,24 @@ def get_meeting_address(string: str) -> tuple:
 
     return (meeting, address)
 
-def xml_query(soup_obj: BeautifulSoup, pdf_name: str, is_in_json: bool):
+def xml_query(soup_obj: BeautifulSoup, pdf_name: str):
     """
-    This function receives a BeautifulSoup object and returns a dictionary with the metadata of the article.
-
-    {
-        '<IDNO>': {
-            'paper_downloaded_pdf': '<pdf_name>',
-            'paper_title': '<title>',
-            'paper_authors': ['<author>', '<author>', ...],
-            'paper_publication_year': '<year>',
-            'paper_introduction': '<introduction>',
-            'paper_abstract': '<abstract>',
-            'paper_conclusions': '<conclusions>',
-            'paper_references': ['<reference>', '<reference>', ...]
-        },
-    }
-
-    {
-        '<author_name>': {
-            'paper_author_forename': '<author_name>',
-            'paper_author_surname': '<author_name>',
-            'paper_author_email': '<email>',
-            'paper_author_affiliation': '<affiliation>',
-            'paper_author_address_line': '<address>',
-            'paper_author_post_code': '<postCode>',
-            'paper_author_settlement': '<settlement>',
-            'paper_author_country': '<country>'
-        }
-    }
-
-    {
-        '<reference>': {
-            'reference_paper_title': '<title>',
-            'reference_paper_authors': ['<author>', '<author>', ...],
-            'reference_paper_publication_year': '<year>',
-            'reference_paper_meeting': '<meeting>',
-            'reference_paper_city': '<city>',
-            'reference_paper_country': '<country>',
-            'reference_paper_note': '<note>'
-        }
-    }
+    Returns a dictionary with the metadata of the article.
+    soup_obj: Article in XML format.
     """
     metadata = {}
-
-    idno = soup_obj.find('idno').text if soup_obj.find('idno') != '' else random.randint(0, 150000)
-    print(idno, pdf_name)
+    
+    idno = idno = soup_obj.find('idno').text if soup_obj.find('idno') != '' else random.randint(0, 150000)
     metadata[idno] = {}
-
+    
     metadata[idno]["paper_downloaded_pdf"] = pdf_name
-
+    
     title = soup_obj.find('title').text if soup_obj.find('title') else None
-
     if title:
         metadata[idno]["paper_title"] = title.replace(';', ',')
     else:
         metadata[idno]["paper_title"] = None
-
+        
     metadata[idno]["paper_authors"] = []
     for each_author in soup_obj.find('analytic').find_all('author'):
         metadata_author = {}
@@ -101,13 +85,7 @@ def xml_query(soup_obj: BeautifulSoup, pdf_name: str, is_in_json: bool):
         metadata_author["paper_author_country"] = (affiliation.find('country').text).replace(';', ',') if affiliation.find('country') else ''
 
         metadata[idno]["paper_authors"].append(metadata_author)
-
-    if is_in_json:
-        with open(seen_pdfs_path, 'r') as f:
-            obj = json.load(f)
-            print(title)
-            metadata[idno]["paper_publication_year"] = obj[title][0] if title in obj else None
-
+        
     divs = soup_obj.find_all('div', attrs={'xmlns': 'http://www.tei-c.org/ns/1.0'})
     filtered_divs = [div for div in divs if "Introduction" in div.text]
     introduction = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')]
@@ -139,5 +117,5 @@ def xml_query(soup_obj: BeautifulSoup, pdf_name: str, is_in_json: bool):
         metadata_references["reference_paper_note"] = (each_reference.find('note').text).replace(';', ',') if each_reference.find('note') else ''
 
         metadata[idno]["paper_references"].append(metadata_references)
-        
+    
     return metadata

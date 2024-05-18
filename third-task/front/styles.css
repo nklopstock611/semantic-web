@@ -1,0 +1,74 @@
+#drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 20px;
+    width: 500px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 16px;
+    color: #ccc;
+    margin: 50px auto;
+    position: relative;
+    cursor: pointer;
+}
+
+#file-input {
+    display: none;
+}
+
+#drop-area-text {
+    text-align: center;
+    padding: 10px;
+    font-size: 16px;
+}
+
+#result {
+    margin: 20px auto;
+    width: 80%;
+}
+
+.result-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.result-section h3 {
+    margin: 0 0 10px;
+}
+
+.result-section input, .result-section textarea {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.result-section input[type="text"] {
+    width: 100%;       /* Hace que el input ocupe el ancho completo del contenedor */
+    padding: 8px 10px; /* Añade algo de padding interno para que el texto no esté pegado a los bordes */
+    margin: 5px 0;     /* Añade un poco de margen arriba y abajo para separarlo de otros elementos */
+    box-sizing: border-box; /* Asegura que el padding y border se incluyan en el ancho total */
+    border: 1px solid #ccc; /* Estilo de borde, ajustable según tu diseño */
+}
+
+.author-section {
+    display: flex;
+    justify-content: space-between; /* Ajusta esto según necesites */
+    margin-bottom: 20px;
+}
+
+.name-section, .address-section {
+    flex: 1; /* Ambas columnas toman el mismo espacio */
+    padding: 0 10px; /* Añade algo de espacio interno */
+}
+
+input {
+    width: 100%; /* Asegura que los inputs ocupen todo el espacio de sus contenedores */
+    box-sizing: border-box; /* Incluye el padding y border en el cálculo del ancho */
+    margin-bottom: 10px; /* Espacio entre los inputs */
+}
+
+
