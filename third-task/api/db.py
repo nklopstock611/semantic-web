@@ -17,6 +17,28 @@ def get_db():
         print("Error connecting to Neo4j:", e)
         raise
 
+def get_data_properties_from_paper(paper: str) -> dict:
+    """
+    Query that gets information from a paper.
+    """
+    db = get_db()
+    query = 'MATCH (p {uri: $paper_uri}) RETURN p.ns0__Title as title, p.ns0__Abstract as abstract, p.ns0__Publication_Date as publication_date, p.ns0__Paper_pdf as downloaded_pdf'
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query, paper_uri=f"http://www.uniandes.web.semantica.example.org/{paper}")
+            for record in result:
+                nodes.append({
+                    'title': record['title'].replace('_', ' '),
+                    'abstract': record['abstract'].replace('_', ' ') if record['abstract'] else 'N/A',
+                    'publication_date': record['publication_date'],
+                    'downloaded_pdf': record['downloaded_pdf']
+                })
+    finally:
+        db.close()
+
+    return nodes
+
 def get_authors_from_paper(paper: str) -> List[str]:
     """
     Query that gets authors from a paper.
@@ -32,6 +54,23 @@ def get_authors_from_paper(paper: str) -> List[str]:
     finally:
         db.close()
         
+    return nodes
+
+def get_references_from_paper(paper: str) -> List[str]:
+    """
+    Query that gets references from a paper.
+    """
+    db = get_db()
+    query = 'MATCH ({uri: $paper_uri})-[:ns0__hasReference]->(r:ns0__Reference) RETURN r.ns0__Title as references'
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query, paper_uri=f"http://www.uniandes.web.semantica.example.org/{paper}")
+            for record in result:
+                nodes.append(record['references'])
+    finally:
+        db.close()
+
     return nodes
 
 def get_pdfs_from_keyword(keyword: str, limit: str='10') -> List[str]:
@@ -110,6 +149,23 @@ def get_papers_by_author(author: str) -> List[str]:
 
     return nodes
 
+def validate_if_reference_is_paper(reference: str) -> bool:
+    """
+    Query that validates if a reference is a paper.
+    """
+    db = get_db()
+    query = 'MATCH (p:ns0__Paper {uri: $reference_uri}) RETURN p'
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query, reference_uri=f"http://www.uniandes.web.semantica.example.org/{reference}")
+            for record in result:
+                nodes.append(record['p'])
+    finally:
+        db.close()
+        
+    return nodes
+
 def load_rdf_to_neo4j(rdf_data, rdf_format='RDF/XML'):
     """
     Función para cargar RDF en Neo4j usando neosemantics mediante la librería neo4j.
@@ -136,3 +192,19 @@ def insert_triple(data: dict) -> bool:
     except Exception as e:
         logging.error(f"An error occurred while inserting triple: {e}")
         return False
+
+def get_information_from_paper(paper: str) -> dict:
+    data = get_data_properties_from_paper(paper)
+    authors = get_authors_from_paper(paper)
+    references = get_references_from_paper(paper)
+    # validación por si alguna referencia tiene un paper equivalente
+    for reference in references:
+        reference_is_paper = validate_if_reference_is_paper(reference)
+        if len(reference_is_paper) > 0:
+            references.remove(reference)
+            references.append(reference_is_paper[0])
+    return {
+        'data_properties': data,
+        'authors': authors,
+        'references': references
+    }

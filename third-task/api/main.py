@@ -28,8 +28,8 @@ def get_pdfs_from_keyword(keyword: str):
 
 @app.get('/by_paper/{paper}')
 def get_authors_from_paper(paper: str):
-    authors = db.get_authors_from_paper(paper)
-    return authors
+    data = db.get_information_from_paper(paper)
+    return data
 
 @app.get('/recommendations/{paper}')
 def get_recommendation_for_given_paper(paper: str):

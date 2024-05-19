@@ -1,5 +1,7 @@
 import axios from 'https://cdn.skypack.dev/axios';
 
+const host = 'localhost:8000';
+
 const dropArea = document.getElementById('drop-area');
 const dropAreaText = document.getElementById('drop-area-text');
 const fileInput = document.getElementById('file-input');
@@ -54,7 +56,7 @@ function updateDropAreaText(fileName) {
 let currentMetadata = {};
 
 async function uploadFile(file) {
-    const url = 'http://localhost:8000/add_pdf';
+    const url = `http://${host}/add_pdf`;
     const formData = new FormData();
     formData.append('file', file);
 
@@ -170,7 +172,7 @@ submitBtn.addEventListener('click', async () => {
             }
         };
 
-        const response = await axios.post('http://localhost:8000/insert_data', payload);
+        const response = await axios.post(`http://${host}/insert_data`, payload);
         console.log('Respuesta recibida:', response.data);
         alert('Datos enviados exitosamente!');
     } catch (error) {
@@ -180,6 +182,7 @@ submitBtn.addEventListener('click', async () => {
 });
 
 let q_type = '';
+let previousContent = '';
 
 document.getElementById('proximity-recommend-btn').addEventListener('click', () => {
     displayInputField("cercanía");
@@ -194,7 +197,7 @@ document.getElementById('execute-q-btn').addEventListener('click', async () => {
 });
 
 async function getRecommendationsByKeywords(paperTitle) {
-    const url = `http://localhost:8000/recommendations/${paperTitle}`;
+    const url = `http://${host}/recommendations/${paperTitle}`;
     try {
         const response = await axios.get(url);
         return response.data; // Retorno los datos obtenidos
@@ -205,7 +208,7 @@ async function getRecommendationsByKeywords(paperTitle) {
 }
 
 async function getRecommendationsByAuthor(author) {
-    const url = `http://localhost:8000/by_author/${author}`;
+    const url = `http://${host}/by_author/${author}`;
     try {
         const response = await axios.get(url);
         return response.data; // Retorno los datos obtenidos
@@ -273,10 +276,13 @@ async function displayKeywordsQuery(data) {
             <ul>
                 ${result.sharedKeywordNames.map(keyword => `<li>${keyword}</li>`).join('')}
             </ul>
+            <button class="detail-btn" data-title="${(result.paper).toLowerCase().replace(/ /g, '_')}">Ver Detalle</button>
         `;
         resultSection.appendChild(resultDiv);
     });
     resultQsDiv.appendChild(resultSection);
+    previousContent = resultQsDiv.innerHTML;
+    addDetailButtonEventListeners();
 }
 
 async function displayAuthorQuery(data) {
@@ -287,13 +293,70 @@ async function displayAuthorQuery(data) {
     await data.forEach(result => {
         const resultDiv = document.createElement('div');
         resultDiv.className = 'result-section';
-        let pdfAvailable = result.downloaded_pdf ? `<h4>PDF Disponible: ${data.downloaded_pdf}</h4>` : ''; // Muestra el h4 solo si downloaded_pdf no es null
+        let pdfAvailable = result.downloaded_pdf ? `<h4>PDF Disponible: ${result.downloaded_pdf}</h4>` : ''; // Muestra el h4 solo si downloaded_pdf no es null
         resultDiv.innerHTML = `
             <h3>Título: ${result.title}</h3>
             ${pdfAvailable}
-            <button id="detail-btn">Ver Detalle</button>
+            <button class="detail-btn" data-title="${(result.title).toLowerCase().replace(/ /g, '_')}">Ver Detalle</button>
         `;
         resultSection.appendChild(resultDiv);
     });
     resultQsDiv.appendChild(resultSection);
+    previousContent = resultQsDiv.innerHTML;
+    addDetailButtonEventListeners();
+}
+
+function addBackButton() {
+    const backButton = document.createElement('button');
+    backButton.textContent = "Atrás";
+    backButton.onclick = function() {
+        resultQsDiv.innerHTML = previousContent;
+        addDetailButtonEventListeners(); 
+    };
+    resultQsDiv.append(backButton);
+}
+
+function displayPaperDetails(data) {
+    console.log('Paper details:', data);
+    resultQsDiv.innerHTML = '';
+    const resultSection = document.createElement('div');
+    resultSection.id = 'q-result-section-authors';
+    const resultDiv = document.createElement('div');
+    resultDiv.className = 'result-section';
+    let publicationDate = (data.data_properties[0].publication_date != null && data.data_properties[0].publication_date !== "NULL") ? data.data_properties[0].publication_date : 'No disponible';
+    let abstract = data.data_properties[0].abstract ? `<h4>Abstract:</h4><p style="text-align: justify;">${data.data_properties[0].abstract}</p>` : '';
+    let authors = (data.data_properties[0].authors != [] && data.data_properties[0].authors !== undefined) ? `<ul>${data.authors.map(author => `<li>${author}</li>`).join('')}</ul>` : 'No disponible';
+    console.log('Authors:', data.data_properties[0].authors === undefined);
+    resultDiv.innerHTML = `
+        <h3>Título: ${data.data_properties[0].title}</h3>
+        <h4>Fecha de Publicación: ${publicationDate}</h4>
+        ${abstract}
+        <h4>Autores:</h4>
+        ${authors}
+    `;
+    resultSection.appendChild(resultDiv);
+    resultQsDiv.appendChild(resultSection);
+    addBackButton();
+}
+
+async function getPaperDetails(title) {
+    const url = `http://${host}/by_paper/${title}`;
+    try {
+        const response = await axios.get(url);
+        displayPaperDetails(response.data);
+    } catch (error) {
+        console.error('Error when getting data:', error);
+        alert(`Error al obtener detalles del paper: ${error.message}`);
+    }
+}
+
+function addDetailButtonEventListeners() {
+    const buttons = document.querySelectorAll('.detail-btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            const title = this.getAttribute('data-title');
+            console.log('Paper title:', title);
+            getPaperDetails(title);
+        });
+    });
 }
