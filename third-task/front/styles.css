@@ -25,11 +25,12 @@
 }
 
 #result {
-    margin: 20px auto;
+    margin: 30px auto 20px;
     width: 80%;
 }
 
 .result-section {
+    margin-top: 10px;
     margin-bottom: 20px;
     padding: 10px;
     border: 1px solid #ccc;
@@ -81,6 +82,12 @@ textarea {
     justify-content: center; /* Centra el contenido horizontalmente */
     align-items: center; /* Centra el contenido verticalmente (opcional si necesitas centrado vertical) */
     height: 100%; /* Ajusta según la necesidad de tu diseño */
+    margin-bottom: 30px;
 }
 
-
+.recommendation-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Espacio entre los botones */
+    margin-bottom: 20px;
+}

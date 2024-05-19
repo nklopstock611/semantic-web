@@ -62,7 +62,7 @@ def get_recommendation_for_given_paper(paper: str) -> List[str]:
     MATCH (k:ns0__ConceptAnnotation)<-[:ns0__hasConcept_Annotation]-(otherPaper:ns0__Paper)
     WHERE k IN keywords AND otherPaper <> p
 
-    WITH otherPaper, collect(k) as sharedKeywordsName, COUNT(k) AS sharedKeywords
+    WITH otherPaper, collect(k.uri) as sharedKeywordsName, COUNT(k) AS sharedKeywords
     ORDER BY sharedKeywords DESC
 
     RETURN otherPaper.ns0__Title AS paper, sharedKeywords, sharedKeywordsName LIMIT 10
@@ -74,9 +74,12 @@ def get_recommendation_for_given_paper(paper: str) -> List[str]:
             result = session.run(query, paper_uri=f"http://www.uniandes.web.semantica.example.org/{paper}")
             for record in result:
                 nodes.append({
-                    'paper': record['paper'],
+                    'paper': record['paper'].replace('_', ' '),
                     'sharedKeywordsCount': record['sharedKeywords'],
-                    'sharedKeywordNames': record['sharedKeywordsName']
+                    'sharedKeywordNames': [
+                        keyword.replace('http://www.uniandes.web.semantica.example.org/', '').replace('_', ' ')
+                        for keyword in record['sharedKeywordsName']
+                    ]
                 })
     finally:
         db.close()
@@ -90,7 +93,7 @@ def get_papers_by_author(author: str) -> List[str]:
     query = """
     MATCH (a:ns0__Author {uri: $author_uri})-[:ns0__isAuthorOf]->(p)
     WHERE p:ns0__Paper OR p:ns0__Reference
-    RETURN p.ns0__Title AS paper
+    RETURN p.ns0__Title AS paper, p.ns0__Paper_pdf as pdf
     """
     db = get_db()
     nodes = []
@@ -98,7 +101,10 @@ def get_papers_by_author(author: str) -> List[str]:
         with db as session:
             result = session.run(query, author_uri=f"http://www.uniandes.web.semantica.example.org/{author}")
             for record in result:
-                nodes.append(record['paper'])
+                nodes.append({
+                    'title': record['paper'].replace('_', ' '),
+                    'downloaded_pdf': record['pdf']
+                })
     finally:
         db.close()
 

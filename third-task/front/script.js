@@ -3,7 +3,8 @@ import axios from 'https://cdn.skypack.dev/axios';
 const dropArea = document.getElementById('drop-area');
 const dropAreaText = document.getElementById('drop-area-text');
 const fileInput = document.getElementById('file-input');
-const resultDiv = document.getElementById('result');
+const resultInsertDiv = document.getElementById('result-insert');
+const resultQsDiv = document.getElementById('result-qs');
 
 // Evitar comportamiento predeterminado para eventos de arrastrar y soltar
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -77,7 +78,7 @@ async function uploadFile(file) {
 }
 
 function displayResult(data) {
-    resultDiv.innerHTML = '';
+    resultInsertDiv.innerHTML = '';
     const paperKey = Object.keys(data)[0]; 
     const paper = data[paperKey];
 
@@ -97,7 +98,7 @@ function displayResult(data) {
         <h3>Keywords</h3>
         <input id="paperKeywords" type="text" placeholder="Introduce palabras clave del paper (separadas por ',')" value="${paper.paper_keywords ? paper.paper_keywords : ''}">
     `;
-    resultDiv.appendChild(titleSection);
+    resultInsertDiv.appendChild(titleSection);
 
     const authorsSection = document.createElement('div');
     authorsSection.className = 'result-section';
@@ -125,11 +126,19 @@ function displayResult(data) {
         authorsSection.appendChild(authorDiv);
         authorCount++;
     });
-    resultDiv.appendChild(authorsSection);
+    resultInsertDiv.appendChild(authorsSection);
 
     if (paper) {
-        const submitBtn = document.getElementById('submit-btn');
-        submitBtn.style.display = 'block';
+        document.getElementById('submit-btn').style.display = 'block';
+        document.getElementById('proximity-recommend-btn').style.display = 'block';
+        document.getElementById('author-recommend-btn').style.display = 'block';
+        document.getElementById('author-recommend-btn').style.display = 'block';
+        document.getElementById('execute-q-btn').style.display = 'none';
+        document.getElementById('h2-keyword-q').style.display = 'none';
+        document.getElementById('input-keyword-q').style.display = 'none';
+        document.getElementById('h2-author-q').style.display = 'none';
+        document.getElementById('input-author-q').style.display = 'none';
+        document.getElementById('result-qs').style.display = 'none';
     }
 }
 
@@ -169,3 +178,122 @@ submitBtn.addEventListener('click', async () => {
         alert(`Error al enviar datos: ${error.message}`);
     }
 });
+
+let q_type = '';
+
+document.getElementById('proximity-recommend-btn').addEventListener('click', () => {
+    displayInputField("cercanía");
+});
+
+document.getElementById('author-recommend-btn').addEventListener('click', () => {
+    displayInputField("autor");
+});
+
+document.getElementById('execute-q-btn').addEventListener('click', async () => {
+    await executeQuery(q_type);
+});
+
+async function getRecommendationsByKeywords(paperTitle) {
+    const url = `http://localhost:8000/recommendations/${paperTitle}`;
+    try {
+        const response = await axios.get(url);
+        return response.data; // Retorno los datos obtenidos
+    } catch (error) {
+        console.error('Error when getting data:', error);
+        throw error; // Propagación del error para manejo externo
+    }    
+}
+
+async function getRecommendationsByAuthor(author) {
+    const url = `http://localhost:8000/by_author/${author}`;
+    try {
+        const response = await axios.get(url);
+        return response.data; // Retorno los datos obtenidos
+    } catch (error) {
+        console.error('Error when getting data:', error);
+        throw error; // Propagación del error para manejo externo
+    }    
+}
+
+function displayInputField(type) {
+    if (type === "cercanía") {
+        q_type = type
+        document.getElementById('h2-author-q').style.display = 'none';
+        document.getElementById('input-author-q').style.display = 'none';
+        document.getElementById('result-insert').style.display = 'none';
+        document.getElementById('result-qs').style.display = 'none';
+        document.getElementById('submit-btn').style.display = 'none';
+
+        document.getElementById('h2-keyword-q').style.display = 'block';
+        document.getElementById('input-keyword-q').style.display = 'block';
+    } else if (type === "autor") {
+        q_type = type
+        document.getElementById('h2-keyword-q').style.display = 'none';
+        document.getElementById('input-keyword-q').style.display = 'none';
+        document.getElementById('result-insert').style.display = 'none';
+        document.getElementById('result-qs').style.display = 'none';
+        document.getElementById('submit-btn').style.display = 'none';
+
+        document.getElementById('h2-author-q').style.display = 'block';
+        document.getElementById('input-author-q').style.display = 'block';
+    }
+    
+    document.getElementById('execute-q-btn').style.display = 'block';
+}
+
+async function executeQuery(type) {
+    try {
+        if (type === "cercanía") {
+            const keyword = document.getElementById('input-keyword-q').value;
+            const data = await getRecommendationsByKeywords(keyword);
+            displayKeywordsQuery(data);
+        } else if (type === "autor") {
+            const author = document.getElementById('input-author-q').value;
+            const data = await getRecommendationsByAuthor(author);
+            console.log(data);
+            displayAuthorQuery(data);
+        }
+    } catch (error) {
+        alert(`Error al realizar la consulta: ${error.message}`);
+    }
+}
+
+async function displayKeywordsQuery(data) {
+    document.getElementById('result-qs').style.display = 'block';
+    resultQsDiv.innerHTML = '';
+    const resultSection = document.createElement('div');
+    resultSection.id = 'q-result-section-keywords';
+    await data.forEach(result => {
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'result-section';
+        resultDiv.innerHTML = `
+            <h3>Título: ${result.paper}</h3>
+            <h4>Nivel de cercanía: ${result.sharedKeywordsCount}</h4>
+            <h4>Palabras clave compartidas:</h4>
+            <ul>
+                ${result.sharedKeywordNames.map(keyword => `<li>${keyword}</li>`).join('')}
+            </ul>
+        `;
+        resultSection.appendChild(resultDiv);
+    });
+    resultQsDiv.appendChild(resultSection);
+}
+
+async function displayAuthorQuery(data) {
+    document.getElementById('result-qs').style.display = 'block';
+    resultQsDiv.innerHTML = '';
+    const resultSection = document.createElement('div');
+    resultSection.id = 'q-result-section-authors';
+    await data.forEach(result => {
+        const resultDiv = document.createElement('div');
+        resultDiv.className = 'result-section';
+        let pdfAvailable = result.downloaded_pdf ? `<h4>PDF Disponible: ${data.downloaded_pdf}</h4>` : ''; // Muestra el h4 solo si downloaded_pdf no es null
+        resultDiv.innerHTML = `
+            <h3>Título: ${result.title}</h3>
+            ${pdfAvailable}
+            <button id="detail-btn">Ver Detalle</button>
+        `;
+        resultSection.appendChild(resultDiv);
+    });
+    resultQsDiv.appendChild(resultSection);
+}

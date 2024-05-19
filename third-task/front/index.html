@@ -13,11 +13,25 @@
     <input type="file" id="file-input" accept="application/pdf">
 </div>
 
+<div class="recommendation-buttons">
+    <button id="proximity-recommend-btn">Recomendar por cercanía</button>
+    <button id="author-recommend-btn">Recomendar por autor</button>
+</div>
+
 <div class="button-container">
     <button id="submit-btn" style="display: none;">Enviar Información</button>
 </div>
 
-<div id="result"></div>
+<h2 id="h2-keyword-q" style="display: none">Recomendaciones basadas en cercanía</h2>
+<input type="text" id="input-keyword-q" placeholder="Escribe aquí el título de un paper..." style="width: 100%; padding: 10px; margin-top: 10px; display: none">
+
+<h2 id="h2-author-q" style="display: none">Recomendaciones basadas en autor</h2>
+<input type="text" id="input-author-q" placeholder="Escribe aquí el nombre de un autor..." style="width: 100%; padding: 10px; margin-top: 10px; display: none">
+
+<button id="execute-q-btn" style="display: none;">Recomendar</button>
+
+<div id="result-insert"></div>
+<div id="result-qs"></div>
 
 <script type="module" src="script.js"></script>
 </body>
