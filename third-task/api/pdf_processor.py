@@ -69,7 +69,7 @@ def xml_query(soup_obj: BeautifulSoup, pdf_name: str):
         metadata[idno]["paper_title"] = title.replace(';', ',')
     else:
         metadata[idno]["paper_title"] = None
-        
+
     metadata[idno]["paper_authors"] = []
     for each_author in soup_obj.find('analytic').find_all('author'):
         metadata_author = {}
@@ -78,24 +78,33 @@ def xml_query(soup_obj: BeautifulSoup, pdf_name: str):
         metadata_author["paper_author_email"] = each_author.find('email').text if each_author.find('email') else ''
 
         affiliation = soup_obj.find('affiliation')
-        metadata_author["paper_author_affiliation"] = (affiliation.find('orgname', type="institution").text).replace(';', ',') if affiliation.find('orgname', type="institution") else ''
-        metadata_author["paper_author_address_line"] = (affiliation.find('addrline').text).replace(';', ',') if affiliation.find('addrline') else ''
-        metadata_author["paper_author_post_code"] = (affiliation.find('postcode').text).replace(';', ',') if affiliation.find('postcode') else ''
-        metadata_author["paper_author_settlement"] = (affiliation.find('settlement').text).replace(';', ',') if affiliation.find('settlement') else ''
-        metadata_author["paper_author_country"] = (affiliation.find('country').text).replace(';', ',') if affiliation.find('country') else ''
+        if affiliation:
+            metadata_author["paper_author_affiliation"] = (affiliation.find('orgname', type="institution").text).replace(';', ',') if affiliation.find('orgname', type="institution") else ''
+            metadata_author["paper_author_address_line"] = (affiliation.find('addrline').text).replace(';', ',') if affiliation.find('addrline') else ''
+            metadata_author["paper_author_post_code"] = (affiliation.find('postcode').text).replace(';', ',') if affiliation.find('postcode') else ''
+            metadata_author["paper_author_settlement"] = (affiliation.find('settlement').text).replace(';', ',') if affiliation.find('settlement') else ''
+            metadata_author["paper_author_country"] = (affiliation.find('country').text).replace(';', ',') if affiliation.find('country') else ''
 
         metadata[idno]["paper_authors"].append(metadata_author)
+
+    divs = soup_obj.find_all('div', attrs={'xmlns': 'http://www.tei-c.org/ns/1.0'}) if soup_obj.find_all('div', attrs={'xmlns': 'http://www.tei-c.org/ns/1.0'}) else []
+    if divs:
+        filtered_divs = [div for div in divs if "Introduction" in div.text]
+        introduction = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')]
+        if introduction:
+            metadata[idno]["paper_introduction"] = introduction[0]
+    else:
+        metadata[idno]["paper_introduction"] = ''
         
-    divs = soup_obj.find_all('div', attrs={'xmlns': 'http://www.tei-c.org/ns/1.0'})
-    filtered_divs = [div for div in divs if "Introduction" in div.text]
-    introduction = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')]
-    if introduction:
-        metadata[idno]["paper_introduction"] = introduction[0]
     metadata[idno]["paper_abstract"] = ((soup_obj.find('abstract').text).replace(';', '')).replace('\n', '') if soup_obj.find('abstract') else ''
-    filtered_divs = [div for div in divs if "Conclusions" in div.text]
-    conclusion = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')]
-    if conclusion:
-        metadata[idno]["paper_conclusions"] = conclusion[0]
+    
+    if divs:
+        filtered_divs = [div for div in divs if "Conclusions" in div.text]
+        conclusion = [re.sub(pattern, '', e.find('p').text) for e in filtered_divs if e.find('p')]
+        if conclusion:
+            metadata[idno]["paper_conclusions"] = conclusion[0]
+    else:
+        metadata[idno]["paper_conclusions"] = ''
         
     metadata[idno]["paper_publication_date"] = (soup_obj.find('date').text).replace(';', ',') if soup_obj.find('date') else ''
 

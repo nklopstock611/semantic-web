@@ -7,6 +7,8 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+temp_path = './temp_files'
+
 app = FastAPI()
 
 # Habilitar CORS
@@ -58,8 +60,8 @@ async def add_pdf(file: UploadFile = File(...)):
 async def insert_data(data: dict):
     try:
         success_neo4j = db.insert_triple(data)
-        paper_dict = list(data['papers'].values())[0]
-        success_drive = gd.save_pdf_drive(f"/temp_files/{paper_dict['paper_downloaded_pdf']}", paper_dict['paper_downloaded_pdf'])
+        paper_dict = list(data.keys())[0]
+        success_drive = gd.save_pdf_drive(f"{temp_path}/{data[paper_dict]['paper_downloaded_pdf']}", data[paper_dict]['paper_downloaded_pdf'])
         if success_neo4j and success_drive:
             return JSONResponse(content={"message": "Data inserted successfully"}, status_code=200)
         else:

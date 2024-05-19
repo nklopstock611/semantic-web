@@ -132,6 +132,7 @@ function displayResult(data) {
 
     if (paper) {
         document.getElementById('submit-btn').style.display = 'block';
+        document.getElementById('result-insert').style.display = 'block';
         document.getElementById('proximity-recommend-btn').style.display = 'block';
         document.getElementById('author-recommend-btn').style.display = 'block';
         document.getElementById('author-recommend-btn').style.display = 'block';
