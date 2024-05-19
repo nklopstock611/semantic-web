@@ -1,11 +1,8 @@
 import os
 import io
 import tempfile
-from fastapi import HTTPException
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
-from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaIoBaseDownload
 
 gauth = GoogleAuth()
 gauth.LoadCredentialsFile("credentials.json")
