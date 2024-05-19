@@ -326,6 +326,7 @@ function displayPaperDetails(data) {
     let publicationDate = (data.data_properties[0].publication_date != null && data.data_properties[0].publication_date !== "NULL") ? data.data_properties[0].publication_date : 'No disponible';
     let abstract = data.data_properties[0].abstract ? `<h4>Abstract:</h4><p style="text-align: justify;">${data.data_properties[0].abstract}</p>` : '';
     let authors = (data.data_properties[0].authors != [] && data.data_properties[0].authors !== undefined) ? `<ul>${data.authors.map(author => `<li>${author}</li>`).join('')}</ul>` : 'No disponible';
+    let pdfAvailable = data.data_properties[0].downloaded_pdf ? `<h4>PDF Disponible: ${data.data_properties[0].downloaded_pdf}</h4><button class="download-btn" data-title="${(data.data_properties[0].downloaded_pdf)}">Descargar</button>` : ''; // Muestra el h4 solo si downloaded_pdf no es null
     console.log('Authors:', data.data_properties[0].authors === undefined);
     resultDiv.innerHTML = `
         <h3>Título: ${data.data_properties[0].title}</h3>
@@ -333,9 +334,11 @@ function displayPaperDetails(data) {
         ${abstract}
         <h4>Autores:</h4>
         ${authors}
+        ${pdfAvailable}
     `;
     resultSection.appendChild(resultDiv);
     resultQsDiv.appendChild(resultSection);
+    addDownloadButtonEventListeners();
     addBackButton();
 }
 
@@ -350,6 +353,24 @@ async function getPaperDetails(title) {
     }
 }
 
+async function downloadPdf(title) {
+    const url = `http://${host}/download_pdf/${title}`;
+    try {
+        console.log('Downloading PDF...');
+        const response = await axios.get(url, { responseType: 'blob' });
+        const url_w = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url_w;
+        link.setAttribute('download', `${title}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    } catch (error) {
+        console.error('Error during PDF download:', error);
+        alert(`Error al descargar el PDF: ${error.message}`);
+    }
+}
+
 function addDetailButtonEventListeners() {
     const buttons = document.querySelectorAll('.detail-btn');
     buttons.forEach(button => {
@@ -357,6 +378,17 @@ function addDetailButtonEventListeners() {
             const title = this.getAttribute('data-title');
             console.log('Paper title:', title);
             getPaperDetails(title);
+        });
+    });
+}
+
+function addDownloadButtonEventListeners() {
+    const buttons = document.querySelectorAll('.download-btn');
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            const title = this.getAttribute('data-title');
+            console.log('Paper title:', title);
+            downloadPdf(title.replace('%2', '"'));
         });
     });
 }

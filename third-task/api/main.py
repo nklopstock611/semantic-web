@@ -1,9 +1,10 @@
 import db
 import pdf_processor as pp
+import gdrive as gd
 
 import json
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -56,14 +57,35 @@ async def add_pdf(file: UploadFile = File(...)):
 @app.post('/insert_data')
 async def insert_data(data: dict):
     try:
-        success = db.insert_triple(data)
-        if success:
+        success_neo4j = db.insert_triple(data)
+        paper_dict = list(data['papers'].values())[0]
+        success_drive = gd.save_pdf_drive(f"/temp_files/{paper_dict['paper_downloaded_pdf']}", paper_dict['paper_downloaded_pdf'])
+        if success_neo4j and success_drive:
             return JSONResponse(content={"message": "Data inserted successfully"}, status_code=200)
         else:
             raise ValueError("Failed to insert data due to validation failure or other non-exceptional issue.")
     except Exception as e:
         print(f"Error: {str(e)}")
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get('/download_pdf/{file_name}')
+def download_pdf(file_name: str):
+    try:
+        print('File name:', file_name)
+        file_name = file_name.replace('"', '%2')
+        print('File name:', file_name)
+        pdf_content, suggested_filename = gd.download_pdf_drive(file_name)
+        if pdf_content is None:
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        headers = {
+            "Content-Disposition": f"attachment; filename={suggested_filename}"
+        }
+        
+        return StreamingResponse(pdf_content, media_type="application/pdf", headers=headers)
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return JSONResponse(content={"error": str(e) + '\n No se encontró el archivo.'}, status_code=500)
 
 """
 Pasos:
