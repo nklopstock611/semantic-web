@@ -3,6 +3,7 @@ import pdf_processor as pp
 import gdrive as gd
 
 import json
+from fuzzywuzzy import process
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,6 +20,16 @@ app.add_middleware(
     allow_methods=["*"],  # Permitir todos los métodos
     allow_headers=["*"],  # Permitir todos los headers
 )
+
+def fuzzy_search(query, candidates, limit=5):
+    names = [candidate['name'] for candidate in candidates]
+    matches = process.extract(query, names, limit=limit)
+    result = []
+    for match in matches:
+        matched_dict = next(item for item in candidates if item['name'] == match[0])
+        result.append(matched_dict)
+        
+    return result
 
 @app.get('/')
 def home():
@@ -88,6 +99,25 @@ def download_pdf(file_name: str):
     except Exception as e:
         print(f"Error: {str(e)}")
         return JSONResponse(content={"error": str(e) + '\n No se encontró el archivo.'}, status_code=500)
+
+@app.get('/autocomplete/{typeOf}/{entity}')
+def autocomplete_paper(typeOf: str, entity: str):
+    print('Type:', typeOf)
+    print('Paper:', entity)
+    if typeOf == 'paper':
+        try:
+            papers = db.autocomplete_paper_query(entity)
+            return fuzzy_search(entity, papers)
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return JSONResponse(content={"error": str(e)}, status_code=500)
+    elif typeOf == 'author':
+        try:
+            authors = db.autocomplete_author_query(entity)
+            return fuzzy_search(entity, authors)
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return JSONResponse(content={"error": str(e)}, status_code=500)
 
 """
 Pasos:

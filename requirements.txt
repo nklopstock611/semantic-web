@@ -9,3 +9,4 @@ pyshacl
 fastapi
 neo4j
 pydrive2
+fuzzywuzzy

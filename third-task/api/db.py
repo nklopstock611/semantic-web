@@ -149,6 +149,54 @@ def get_papers_by_author(author: str) -> List[str]:
 
     return nodes
 
+def autocomplete_paper_query(paper: str) -> List[str]:
+    """
+    Query that autocompletes paper names.
+    """
+    db = get_db()
+    query = """
+    MATCH (p:ns0__Paper)
+    WHERE toLower(p.ns0__Title) CONTAINS toLower($paper_name)
+    RETURN p.ns0__Title as paper_name, p.uri as paper_uri
+    """
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query, paper_name=paper)
+            for record in result:
+                nodes.append({
+                    'name': record['paper_name'].replace('_', ' '),
+                    'uri': record['paper_uri'].replace('http://www.uniandes.web.semantica.example.org/', '')
+                })
+    finally:
+        db.close()
+
+    return nodes
+
+def autocomplete_author_query(author_name: str) -> List[str]:
+    """
+    Query that autocompletes author names by searching both forename and surname.
+    """
+    db = get_db()
+    query = '''
+    MATCH (a:ns0__Author)
+    WHERE toLower(a.ns0__Forename + ' ' + a.ns0__Surname) CONTAINS toLower($author_name)
+    RETURN a.ns0__Forename + ' ' + a.ns0__Surname as full_name, a.uri as author_uri
+    '''
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query, author_name=author_name)
+            for record in result:
+                nodes.append({
+                    'name': record['full_name'].replace('_', ' '),
+                    'uri': record['author_uri'].replace('http://www.uniandes.web.semantica.example.org/', '')
+                })
+    finally:
+        db.close()
+
+    return nodes
+
 def validate_if_reference_is_paper(reference: str) -> bool:
     """
     Query that validates if a reference is a paper.

@@ -7,6 +7,10 @@ const dropAreaText = document.getElementById('drop-area-text');
 const fileInput = document.getElementById('file-input');
 const resultInsertDiv = document.getElementById('result-insert');
 const resultQsDiv = document.getElementById('result-qs');
+const inputTitle = document.getElementById('input-keyword-q');
+const inputAuthor = document.getElementById('input-author-q');
+const autocompleteTitleDiv = document.getElementById('autocomplete-title');
+const autocompleteAuthorDiv = document.getElementById('autocomplete-author');
 
 // Evitar comportamiento predeterminado para eventos de arrastrar y soltar
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -142,6 +146,8 @@ function displayResult(data) {
         document.getElementById('h2-author-q').style.display = 'none';
         document.getElementById('input-author-q').style.display = 'none';
         document.getElementById('result-qs').style.display = 'none';
+        autocompleteTitleDiv.style.display = 'none';
+        autocompleteAuthorDiv.style.display = 'none';
     }
 }
 
@@ -227,6 +233,8 @@ function displayInputField(type) {
         document.getElementById('result-insert').style.display = 'none';
         document.getElementById('result-qs').style.display = 'none';
         document.getElementById('submit-btn').style.display = 'none';
+        autocompleteTitleDiv.style.display = 'none';
+        autocompleteAuthorDiv.style.display = 'none';
 
         document.getElementById('h2-keyword-q').style.display = 'block';
         document.getElementById('input-keyword-q').style.display = 'block';
@@ -237,6 +245,8 @@ function displayInputField(type) {
         document.getElementById('result-insert').style.display = 'none';
         document.getElementById('result-qs').style.display = 'none';
         document.getElementById('submit-btn').style.display = 'none';
+        autocompleteTitleDiv.style.display = 'none';
+        autocompleteAuthorDiv.style.display = 'none';
 
         document.getElementById('h2-author-q').style.display = 'block';
         document.getElementById('input-author-q').style.display = 'block';
@@ -391,5 +401,50 @@ function addDownloadButtonEventListeners() {
             console.log('Paper title:', title);
             downloadPdf(title.replace('%2', '"'));
         });
+    });
+}
+
+inputTitle.addEventListener('input', () => fetchSuggestions(inputTitle.value, 'paper'));
+inputAuthor.addEventListener('input', () => fetchSuggestions(inputAuthor.value, 'author'));
+
+async function fetchSuggestions(query, type) {
+    if (query.length < 3) { // Comienza a buscar solo después de 3 caracteres para evitar demasiadas peticiones
+        if (type === 'title') {
+            autocompleteTitleDiv.style.display = 'none';
+        } else {
+            autocompleteAuthorDiv.style.display = 'none';
+        }
+        return;
+    }
+
+    const url = `http://${host}/autocomplete/${type}/${query}`;
+    console.log('Fetching suggestions:', url);
+    try {
+        const response = await axios.get(url);
+        displaySuggestions(response.data, type);
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+    }
+}
+
+function displaySuggestions(suggestions, type) {
+    let suggestionsDiv = type === 'paper' ? autocompleteTitleDiv : autocompleteAuthorDiv;
+    console.log('Suggestions:', suggestions);
+    console.log('Suggestions:', suggestionsDiv);
+    suggestionsDiv.innerHTML = '';
+    suggestionsDiv.style.display = 'block';
+    suggestions.forEach(suggestion => {
+        const div = document.createElement('div');
+        div.textContent = suggestion.name;
+        div.className = 'autocomplete-item';
+        div.addEventListener('click', () => {
+            if (type === 'paper') {
+                inputTitle.value = suggestion.uri;
+            } else {
+                inputAuthor.value = suggestion.uri;
+            }
+            suggestionsDiv.style.display = 'none';
+        });
+        suggestionsDiv.appendChild(div);
     });
 }
