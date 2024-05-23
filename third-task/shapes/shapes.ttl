@@ -67,7 +67,7 @@ uev:ReferenceShape
         sh:maxCount 1 ;
     ] .
 
-ues:AuthorShape
+uev:AuthorShape
   a sh:NodeShape ;
   sh:targetClass uev:Author ;
   sh:property [
