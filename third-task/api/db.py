@@ -1,3 +1,4 @@
+import neo4j
 import shapes as shs
 
 import logging
@@ -28,10 +29,14 @@ def get_data_properties_from_paper(paper: str) -> dict:
         with db as session:
             result = session.run(query, paper_uri=f"http://www.uniandes.web.semantica.example.org/{paper}")
             for record in result:
+                publication_date = record['publication_date']
+                if type(record['publication_date']) == neo4j.time.Date:
+                    publication_date = publication_date.strftime('%Y-%m-%d')
+                    
                 nodes.append({
                     'title': record['title'].replace('_', ' '),
                     'abstract': record['abstract'].replace('_', ' ') if record['abstract'] else 'N/A',
-                    'publication_date': record['publication_date'],
+                    'publication_date': publication_date,
                     'downloaded_pdf': record['downloaded_pdf']
                 })
     finally:
@@ -220,7 +225,7 @@ def load_rdf_to_neo4j(rdf_data, rdf_format='RDF/XML'):
     """
     db = get_db()
     serialized = rdf_data.serialize(format='xml')
-    print('SERIALIZED:', serialized)
+    # print('SERIALIZED:', serialized)
     cypher_query = """
     CALL n10s.rdf.import.inline($rdf_data, $rdf_format)
     """

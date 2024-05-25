@@ -50,10 +50,10 @@ def create_graph(datos: dict):
     
     # Iteramos sobre cada paper usando su ID único
     for paper_id, paper_content in datos.items():
-        print('DATA:', paper_content)
+        # print('DATA:', paper_content)
         # El titulo es lo que se carga como clase en la ontología
         paper_class = paper_content.get('paper_title', '').lower().replace(' ', '_') # Crear un URI para el paper usando el ID del paper
-        print('TITLE:', paper_class)
+        # print('TITLE:', paper_class)
         if paper_class != '' and paper_class is not None:
             # pasar a minúsculas y reemplazar espacios por guiones bajos
             paper_class = paper_class.lower().replace(' ', '_')
@@ -101,8 +101,8 @@ def create_graph(datos: dict):
             # Iteramos sobre cada autor del paper
             for author in paper_content.get('paper_authors', []):
                 author_class = author.get('paper_author_forename', '') + ' ' + author.get('paper_author_surname', '')
-                print('ACÁ AUTHOR!!', author_class)
-                print('ACÁ AUTHOR!!', author)
+                # print('ACÁ AUTHOR!!', author_class)
+                # print('ACÁ AUTHOR!!', author)
                 if author_class != ' ' and author_class is not None:
                     # pasar a minúsculas y reemplazar espacios por guiones bajos
                     author_class = author_class.lower().replace(' ', '_')

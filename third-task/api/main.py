@@ -72,7 +72,9 @@ async def insert_data(data: dict):
     try:
         success_neo4j = db.insert_triple(data)
         paper_dict = list(data.keys())[0]
-        success_drive = gd.save_pdf_drive(f"{temp_path}/{data[paper_dict]['paper_downloaded_pdf']}", data[paper_dict]['paper_downloaded_pdf'])
+        if success_neo4j:
+            success_drive = gd.save_pdf_drive(f"{temp_path}/{data[paper_dict]['paper_downloaded_pdf']}", data[paper_dict]['paper_downloaded_pdf'])
+        
         if success_neo4j and success_drive:
             return JSONResponse(content={"message": "Data inserted successfully"}, status_code=200)
         else:

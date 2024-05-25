@@ -70,6 +70,7 @@ async function uploadFile(file) {
 
     try {
         console.log('Uploading file...');
+        document.getElementById('loading-indicator').style.display = 'block'; // Mostrar el indicador de carga
         const response = await axios.post(url, formData);
         currentMetadata = response.data[Object.keys(response.data)[0]];
 
@@ -84,6 +85,8 @@ async function uploadFile(file) {
         if (error.response) {
             console.log('Error details:', error.response.data);
         }
+    } finally {
+        document.getElementById('loading-indicator').style.display = 'none'; // Ocultar el indicador de carga
     }    
 }
 
@@ -377,7 +380,7 @@ async function downloadPdf(title) {
         const url_w = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url_w;
-        link.setAttribute('download', `${title}.pdf`);
+        link.setAttribute('download', `${title}`);
         document.body.appendChild(link);
         link.click();
         link.remove();

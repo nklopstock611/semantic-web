@@ -123,3 +123,7 @@ Para correr el back:
 cd third-task/api
 uvicorn main:app --reload
 ```
+
+```
+docker-compose up -d
+```
