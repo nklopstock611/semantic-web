@@ -146,7 +146,7 @@ def get_papers_by_author(author: str) -> List[str]:
                 })
     finally:
         db.close()
-
+    print(nodes)
     return nodes
 
 def autocomplete_paper_query(paper: str) -> List[str]:
@@ -245,10 +245,12 @@ def get_information_from_paper(paper: str) -> dict:
     data = get_data_properties_from_paper(paper)
     authors = get_authors_from_paper(paper)
     references = get_references_from_paper(paper)
+    print('Authors:', authors)
     # validación por si alguna referencia tiene un paper equivalente
     for reference in references:
         reference_is_paper = validate_if_reference_is_paper(reference)
         if len(reference_is_paper) > 0:
+            print('acá')
             references.remove(reference)
             references.append(reference_is_paper[0])
     return {

@@ -336,7 +336,8 @@ function displayPaperDetails(data) {
     resultDiv.className = 'result-section';
     let publicationDate = (data.data_properties[0].publication_date != null && data.data_properties[0].publication_date !== "NULL") ? data.data_properties[0].publication_date : 'No disponible';
     let abstract = data.data_properties[0].abstract ? `<h4>Abstract:</h4><p style="text-align: justify;">${data.data_properties[0].abstract}</p>` : '';
-    let authors = (data.data_properties[0].authors != [] && data.data_properties[0].authors !== undefined) ? `<ul>${data.authors.map(author => `<li>${author}</li>`).join('')}</ul>` : 'No disponible';
+    console.log('Authors:', data.authors)
+    let authors = (data.authors != [] && data.authors !== undefined) ? `<ul>${data.authors.map(author => `<li>${author}</li>`).join('')}</ul>` : 'No disponible';
     let pdfAvailable = data.data_properties[0].downloaded_pdf ? `<h4>PDF Disponible: ${data.data_properties[0].downloaded_pdf}</h4><button class="download-btn" data-title="${(data.data_properties[0].downloaded_pdf)}">Descargar</button>` : ''; // Muestra el h4 solo si downloaded_pdf no es null
     console.log('Authors:', data.data_properties[0].authors === undefined);
     resultDiv.innerHTML = `
