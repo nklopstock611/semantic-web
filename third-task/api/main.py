@@ -119,6 +119,29 @@ def autocomplete_paper(typeOf: str, entity: str):
             print(f"Error: {str(e)}")
             return JSONResponse(content={"error": str(e)}, status_code=500)
 
+@app.get('/visualization/keywords_bubble')
+def keywords_bubble_visualization():
+    try:
+        keywords = db.keywords_bubble_visualization()
+        return keywords
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+@app.get('/visualization/keywords_connection')
+def top_ten_most_connected_keywords():
+    try:
+        keywords = db.top_ten_most_connected_keywords()
+        return keywords
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+
+
+
+
+
 """
 Pasos:
 - Definir Shapes (CHECK)
@@ -137,15 +160,15 @@ Pasos:
     - En caso de que falle, se muestra un mensaje de error (CHECK)
     
 CONSULTAS:
-- Papers de un mismo autor
+- Papers de un mismo autor (CHECK)
 - Papers que comparten keywords:
-    - ver los keywords de un paper dado
-    - ver los papers que comparten keywords
-    - mostrar solo los que comparten más keywords
+    - ver los keywords de un paper dado (CHECK)
+    - ver los papers que comparten keywords (CHECK)
+    - mostrar solo los que comparten más keywords (CHECK)
 - Información de un paper dado
-    - Título
-    - Año de publicación
-    - Abstract
-    - Autores (juntando nombre y apellido)
-    - Botón para descargar el PDF
+    - Título (CHECK)
+    - Año de publicación (CHECK)
+    - Abstract (CHECK)
+    - Autores (juntando nombre y apellido) (CHECK)
+    - Botón para descargar el PDF (CHECK)
 """

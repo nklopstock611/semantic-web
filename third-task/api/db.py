@@ -146,7 +146,7 @@ def get_papers_by_author(author: str) -> List[str]:
                 })
     finally:
         db.close()
-    print(nodes)
+
     return nodes
 
 def autocomplete_paper_query(paper: str) -> List[str]:
@@ -245,12 +245,10 @@ def get_information_from_paper(paper: str) -> dict:
     data = get_data_properties_from_paper(paper)
     authors = get_authors_from_paper(paper)
     references = get_references_from_paper(paper)
-    print('Authors:', authors)
     # validación por si alguna referencia tiene un paper equivalente
     for reference in references:
         reference_is_paper = validate_if_reference_is_paper(reference)
         if len(reference_is_paper) > 0:
-            print('acá')
             references.remove(reference)
             references.append(reference_is_paper[0])
     return {
@@ -258,3 +256,64 @@ def get_information_from_paper(paper: str) -> dict:
         'authors': authors,
         'references': references
     }
+
+def keywords_bubble_visualization():
+    """
+    Query that gets keywords and their frequency.
+    """
+    db = get_db()
+    query = """
+    MATCH (p:ns0__Paper)-[r:ns0__hasConcept_Annotation]->(c:ns0__ConceptAnnotation)
+    RETURN c.uri AS keyword, COUNT(c) AS times
+    ORDER BY times DESC
+    """
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query)
+            for record in result:
+                nodes.append({
+                    'keyword': record['keyword'].replace('http://www.uniandes.web.semantica.example.org/', '').replace('_', ' '),
+                    'times': record['times']
+                })
+    finally:
+        db.close()
+
+    return nodes
+
+def top_ten_most_connected_keywords():
+    """
+    Query that gets the top ten most connected keywords.
+    """
+    db = get_db()
+    query = """
+    MATCH (p:ns0__Paper)-[:ns0__hasConcept_Annotation]->(c1:ns0__ConceptAnnotation), (p)-[:ns0__hasConcept_Annotation]->(c2:ns0__ConceptAnnotation)
+    WHERE id(c1) < id(c2)
+    RETURN c1.uri AS concept1, c2.uri AS concept2, COUNT(p) AS sharedPapers
+    ORDER BY sharedPapers DESC
+    LIMIT 20
+    """
+    query_wo_algorithm__and_data = """
+    MATCH (p:ns0__Paper)-[:ns0__hasConcept_Annotation]->(c1:ns0__ConceptAnnotation), (p)-[:ns0__hasConcept_Annotation]->(c2:ns0__ConceptAnnotation)
+    WHERE id(c1) < id(c2)
+    and c1.uri <> "http://www.uniandes.web.semantica.example.org/algorithm" and c2.uri <> "http://www.uniandes.web.semantica.example.org/algorithm"
+    and c1.uri <> "http://www.uniandes.web.semantica.example.org/data" and c2.uri <> "http://www.uniandes.web.semantica.example.org/data"
+    and c1.uri <> "http://www.uniandes.web.semantica.example.org/information" and c2.uri <> "http://www.uniandes.web.semantica.example.org/information"
+    RETURN c1.uri AS concept1, c2.uri AS concept2, COUNT(p) AS sharedPapers
+    ORDER BY sharedPapers DESC
+    LIMIT 10
+    """
+    nodes = []
+    try:
+        with db as session:
+            result = session.run(query_wo_algorithm__and_data)
+            for record in result:
+                nodes.append({
+                    'keyword_one': record['concept1'].replace('http://www.uniandes.web.semantica.example.org/', '').replace('_', ' '),
+                    'keyword_two': record['concept2'].replace('http://www.uniandes.web.semantica.example.org/', '').replace('_', ' '),
+                    'sharedPapers': record['sharedPapers']
+                })
+    finally:
+        db.close()
+
+    return nodes

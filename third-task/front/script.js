@@ -12,6 +12,10 @@ const inputAuthor = document.getElementById('input-author-q');
 const autocompleteTitleDiv = document.getElementById('autocomplete-title');
 const autocompleteAuthorDiv = document.getElementById('autocomplete-author');
 
+document.getElementById('visualization-btn').addEventListener('click', () => {
+    window.location.href = 'visualization.html'; // Asegúrate de tener un archivo 'visualization.html'
+});
+
 // Evitar comportamiento predeterminado para eventos de arrastrar y soltar
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropArea.addEventListener(eventName, preventDefaults, false);
