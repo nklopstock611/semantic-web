@@ -1,7 +1,7 @@
 {
     "builds": [
       {
-        "src": "main.py",
+        "src": "./third-task/api/main.py",
         "use": "@vercel/python"
       }
     ],
