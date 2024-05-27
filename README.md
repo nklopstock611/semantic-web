@@ -202,3 +202,6 @@ In this subtask, we improved the web application so that it shows visualizations
 - `visualization.html`: The HTML file for the visualizations.
 
 To see the visualizations, click on the "Visualizaciones" button in the web application (top left corner). There should be two bubble charts: one with the distribution of the number of papers that have a keyword and another with the top 10 most related keywords (the keywords that appear more times together).
+
+# Demo
+You can watch our demo video [here](https://www.youtube.com/watch?v=BbSBmPCVS88&ab_channel=AlejandroSalgado).
