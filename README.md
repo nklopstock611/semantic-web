@@ -109,21 +109,96 @@ You can find the ontology RDF file in `/semantic-web/second-task/rdf-model/rdf_d
 
 In the `/semantic-web/second-task/rdf-model/semantic_instances_only.txt` file there's a link to a Google Drive folder. There, you'll the find JSON with all the metadata, both .rdf files (ontology and instances) and the neo4j database dump.
 
+## Task 3
+We divided this task in four subtasks:
+- **Subtask 3.1**: Create a Neo4j database with the ontology and instances.
+- **Subtask 3.2**: Build a FastAPI that can query the ontology and insert triples. This implies the data quality verification usign SHACL.
+- **Subtask 3.3**: Create a web application that allows users to query the ontology created in Task 2 and get specific PDFs. Also, it should let users insert a new PDF and the gotten triples into the ontology.
+- **Subtask 3.4**: Improve the web application so that it shows visualizations of the data.
 
-# DRAFT
-Para correr el front:
+### Subtask 3.1
+
+In this first subtask, we created a Neo4j database with the ontology and instances. You can find the database dump in the Google Drive folder linked in the `semantic_instances_only.txt` file.
+
+To run the database, we used a Docker container. You can run the following command to start the container:
+
 ```
-npm install
-cd third-task/front
-npm start
+sudo docker run -it --rm   --publish=7474:7474 --publish=7687:7687 --volume=$HOME/neo4j/data:/data --volume=$HOME/neo4j/logs:/logs --user="$(id -u):$(id -g)"   -e NEO4J_AUTH=none   --env NEO4J_PLUGINS='["apoc","n10s"]'   neo4j:5.5.0
 ```
 
-Para correr el back:
+If there is a problem, run these two commands:
+```
+sudo chmod 777 $HOME/neo4j/logs
+sudo chmod 777 $HOME/neo4j/data
+```
+
+**Note:** Although the dump exists, if you want to load the rdf files into the database, you can use the following commands once you enter `localhost:7474`:
+
+```
+CALL n10s.graphconfig.init({handleRDFTypes:"LABELS_AND_NODES"});
+
+CREATE CONSTRAINT n10s_unique_uri FOR (r:Resource) REQUIRE r.uri IS UNIQUE
+
+CALL n10s.rdf.import.fetch("file:/data/ontology_instances.rdf","RDF/XML");
+```
+
+Of course, the rdf file should be in the `/data/` directory of neo4j.
+
+### Subtask 3.2
+
+Once the database is up and running, we can run the API. You can find the main file in the `/semantic-web/third-task/api/` directory. There, you'll find the following files:
+
+- `main.py`: Runs the FastAPI server.
+- `db.py`: Has the connection to the Neo4j database and all the queries.
+- `shacl.py`: Has the SHACL validation functions.
+- `pdf_processor.py`: Has the functions to process the PDFs using GROBID.
+- `gdrive.py`: Has the functions to download and insert PDFs from and to Google Drive.
+
+To run the API, first you need to run the GROBID Docker container. You can do this by running the following command (standing on root directory):
+
+```
+docker-compose up -d
+```
+
+Now, to run the API:
+
 ```
 cd third-task/api
 uvicorn main:app --reload
 ```
 
+### Subtask 3.3
+
+With the API running, we can now run the web application. You can find the main file in the `/semantic-web/third-task/front/` directory. There, you'll also find the following files:
+
+- `script.js`: Has the functions to interact with the API.
+- `index.html`: The main HTML file.
+- `style.css`: The CSS file.
+
+To run the web application, you can use the following commands:
+
+First, make sure to have all the required dependencies:
+
 ```
-docker-compose up -d
+npm install
 ```
+
+Then, run the application:
+
+```
+cd third-task/front
+npm start
+```
+
+A new tab will open in your browser with the web application.
+
+That's it! Now you can interact with the web application and the API!
+
+### Subtask 3.4
+
+In this subtask, we improved the web application so that it shows visualizations of the data. You can find the visualizations in the `/semantic-web/third-task/front/` directory. There, you'll find the following files:
+
+- `visualization.js`: The functions to create the visualizations.
+- `visualization.html`: The HTML file for the visualizations.
+
+To see the visualizations, click on the "Visualizaciones" button in the web application (top left corner). There should be two bubble charts: one with the distribution of the number of papers that have a keyword and another with the top 10 most related keywords (the keywords that appear more times together).
