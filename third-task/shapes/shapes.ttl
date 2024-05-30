@@ -50,7 +50,6 @@ uev:PaperShape
 
 uev:ReferenceShape
     a sh:NodeShape ;
-    sh:node uev:PaperShape ;
     sh:targetClass uev:Reference ;
     sh:property [
         sh:path uev:Note ;

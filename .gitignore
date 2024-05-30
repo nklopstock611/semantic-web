@@ -1,6 +1,11 @@
 *.cpython-*
 
 credentials.json
+credentials_file.json
+credentials_gdrive.json
+client_secrets.json
+settings.yaml
+
 first-task/pdf-downloader/dict_split_2.json
 first-task/pdf-downloader/pdfs/
 
