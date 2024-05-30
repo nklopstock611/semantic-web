@@ -160,7 +160,7 @@ To run the API, first you need to run the GROBID Docker container. You can do th
 docker-compose up -d
 ```
 
-Now, to run the API:
+Now, to run the API (http://127.0.0.1:8000/):
 
 ```
 cd third-task/api
@@ -183,7 +183,7 @@ First, make sure to have all the required dependencies:
 npm install
 ```
 
-Then, run the application:
+Then, run the application (http://127.0.0.1:3000/):
 
 ```
 cd third-task/front

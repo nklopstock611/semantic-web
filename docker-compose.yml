@@ -6,12 +6,3 @@ services:
     ports:
       - "8070:8070"
     restart: unless-stopped
-
-  fastapi:
-    build: .
-    container_name: fastapi_app
-    ports:
-      - "8000:8000"
-    restart: unless-stopped
-    depends_on:
-      - grobid
