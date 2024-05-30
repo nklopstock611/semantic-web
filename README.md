@@ -120,7 +120,7 @@ We divided this task in four subtasks:
 
 In this first subtask, we created a Neo4j database with the ontology and instances. You can find the database dump in the Google Drive folder linked in the `semantic_instances_only.txt` file.
 
-To run the database, we used a Docker container. You can run the following command to start the container:
+To run the database, we used a Docker container. You can run the following command to start the container (ports 7474 and 7687):
 
 ```
 sudo docker run -it --rm   --publish=7474:7474 --publish=7687:7687 --volume=$HOME/neo4j/data:/data --volume=$HOME/neo4j/logs:/logs --user="$(id -u):$(id -g)"   -e NEO4J_AUTH=none   --env NEO4J_PLUGINS='["apoc","n10s"]'   neo4j:5.5.0
